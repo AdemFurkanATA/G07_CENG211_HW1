@@ -1,16 +1,25 @@
-public class Game {
-    private int id;
-    private String gameName;
-    private int basePointPerRound;
+public final class Game {
 
-    // Constructor
+    private final int id;
+    private final String gameName;
+    private final int basePointPerRound;
+
     public Game(int id, String gameName, int basePointPerRound) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("Game ID pozitif olmalı.");
+        }
+        if (gameName == null || gameName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Game name null veya boş olamaz.");
+        }
+        if (basePointPerRound <= 0) {
+            throw new IllegalArgumentException("Base point pozitif olmalı.");
+        }
+
         this.id = id;
         this.gameName = gameName;
         this.basePointPerRound = basePointPerRound;
     }
 
-    // Getters
     public int getId() {
         return id;
     }
@@ -23,21 +32,25 @@ public class Game {
         return basePointPerRound;
     }
 
-    // Setters
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setGameName(String gameName) {
-        this.gameName = gameName;
-    }
-
-    public void setBasePointPerRound(int basePointPerRound) {
-        this.basePointPerRound = basePointPerRound;
+    @Override
+    public String toString() {
+        return String.format("%s (ID: %d, Puan: %d)",
+                this.gameName, this.id, this.basePointPerRound);
     }
 
     @Override
-    public String toString() {
-        return gameName;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o instanceof Game game) {
+            return this.id == game.id;
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id);
     }
 }
