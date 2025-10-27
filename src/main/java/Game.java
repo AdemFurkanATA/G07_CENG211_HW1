@@ -39,10 +39,10 @@ public final class Game {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
+    public boolean equals(Object other) {
+        if (this == other) return true;
 
-        if (o instanceof Game game) {
+        if (other instanceof Game game) {
             return this.id == game.id;
         }
 
