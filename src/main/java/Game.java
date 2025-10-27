@@ -58,7 +58,6 @@ public final class Game { // Sınıf final, extend edilemez
     public boolean equals(Object other) {
         if (this == other) return true;
 
-        // Modern 'instanceof' ile tip kontrolü ve cast
         if (other instanceof Game game) {
             return this.id == game.id;
         }
