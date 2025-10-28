@@ -1,55 +1,66 @@
-public class PointsBoard {
-    private Gamer[] gamers;
-    private int[] totalPoints;
-    private double[] averagePoints;
-    private String[] medals;
-    private Match[][] matches;
+import java.util.Arrays;
+
+/**
+ * Puan tablosunu ve hesaplanmış sonuçları tutar.
+ * Bu nesne yaratıldıktan sonra içeriği değişmez (immutable).
+ */
+public final class PointsBoard {
+
+    private final Gamer[] gamers; // Oyuncuların kopyası
+    private final int[] totalPoints;
+    private final double[] averagePoints;
+    private final String[] medals;
 
     // Constructor
     public PointsBoard(Gamer[] gamers, Match[][] matches) {
-        this.gamers = gamers;
-        this.matches = matches;
-        this.totalPoints = new int[gamers.length];
-        this.averagePoints = new double[gamers.length];
-        this.medals = new String[gamers.length];
+        // Dışarıdan gelen 'gamers' dizisinin referansını değil, kopyasını al
+        this.gamers = Arrays.copyOf(gamers, gamers.length);
 
-        calculateAllPoints();
+        // Hesaplama sonuçları için dizileri oluştur
+        this.totalPoints = new int[this.gamers.length];
+        this.averagePoints = new double[this.gamers.length];
+        this.medals = new String[this.gamers.length];
+
+        // Constructor'da tüm hesaplamaları yap
+        calculateAllPoints(matches);
         assignMedals();
     }
 
-    // Tüm oyuncuların puanlarını hesapla
-    private void calculateAllPoints() {
-        for (int i = 0; i < gamers.length; i++) {
+    // Puanları hesapla
+    private void calculateAllPoints(Match[][] matches) {
+        for (int gamerIndex = 0; gamerIndex < this.gamers.length; gamerIndex++) {
             int total = 0;
 
-            // 15 maçın puanlarını topla
-            for (int j = 0; j < 15; j++) {
-                total += matches[i][j].getMatchPoints();
+            // O oyuncunun tüm maçlarını for-each ile dön
+            for (Match match : matches[gamerIndex]) {
+                total += match.getMatchPoints();
             }
 
-            totalPoints[i] = total;
-            averagePoints[i] = total / 15.0;
+            totalPoints[gamerIndex] = total;
+            averagePoints[gamerIndex] = total / 15.0;
         }
     }
 
     // Madalyaları ata
     private void assignMedals() {
-        for (int i = 0; i < gamers.length; i++) {
-            if (totalPoints[i] >= 2000) {
-                medals[i] = "GOLD";
-            } else if (totalPoints[i] >= 1200) {
-                medals[i] = "SILVER";
-            } else if (totalPoints[i] >= 700) {
-                medals[i] = "BRONZE";
+        for (int gamerIndex = 0; gamerIndex < this.gamers.length; gamerIndex++) {
+            if (totalPoints[gamerIndex] >= 2000) {
+                medals[gamerIndex] = "GOLD";
+            } else if (totalPoints[gamerIndex] >= 1200) {
+                medals[gamerIndex] = "SILVER";
+            } else if (totalPoints[gamerIndex] >= 700) {
+                medals[gamerIndex] = "BRONZE";
             } else {
-                medals[i] = "NONE";
+                medals[gamerIndex] = "NONE";
             }
         }
     }
 
-    // Getters
+    // --- Getters ---
+
     public Gamer[] getGamers() {
-        return gamers;
+        // İçerideki diziyi sızdırma, kopyasını ver
+        return Arrays.copyOf(this.gamers, this.gamers.length);
     }
 
     public int getTotalPoints(int gamerIndex) {
@@ -64,18 +75,17 @@ public class PointsBoard {
         return medals[gamerIndex];
     }
 
-    // En yüksek puanlı oyuncuyu bul
+    // En yüksek puanlı oyuncunun index'ini bul
     public int getHighestScoringGamerIndex() {
         int maxIndex = 0;
         int maxPoints = totalPoints[0];
 
-        for (int i = 1; i < totalPoints.length; i++) {
-            if (totalPoints[i] > maxPoints) {
-                maxPoints = totalPoints[i];
-                maxIndex = i;
+        for (int index = 1; index < totalPoints.length; index++) {
+            if (totalPoints[index] > maxPoints) {
+                maxPoints = totalPoints[index];
+                maxIndex = index;
             }
         }
-
         return maxIndex;
     }
 
@@ -83,8 +93,9 @@ public class PointsBoard {
     public int[] getMedalDistribution() {
         int[] distribution = new int[4]; // GOLD, SILVER, BRONZE, NONE
 
-        for (int i = 0; i < medals.length; i++) {
-            switch (medals[i]) {
+        // Madalya dizisini for-each ile dön
+        for (String medal : this.medals) {
+            switch (medal) {
                 case "GOLD":
                     distribution[0]++;
                     break;
@@ -99,7 +110,6 @@ public class PointsBoard {
                     break;
             }
         }
-
-        return distribution;
+        return distribution; // Yeni yaratılan diziyi döndür
     }
 }

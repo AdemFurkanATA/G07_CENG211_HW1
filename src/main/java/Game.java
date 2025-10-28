@@ -1,21 +1,43 @@
-public class Game {
-    private int id;
-    private String gameName;
-    private int basePointPerRound;
+/**
+ * Bir oyunu temsil eder. Bu sınıf 'immutable' (değişmez) olarak tasarlandı.
+ * Bir nesne yaratıldıktan sonra içeriği değiştirilemez.
+ */
 
-    // Constructor
+public final class Game { // Sınıf final, extend edilemez
+
+    // Alanlar final, sadece constructor'da atanabilir
+    private final int id;
+    private final String gameName;
+    private final int basePointPerRound;
+
+    /**
+     * Yeni bir Game nesnesi yaratır.
+     * Geçersiz parametrelere karşı constructor'da validasyon yapılır.
+     */
     public Game(int id, String gameName, int basePointPerRound) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("Game ID pozitif olmalı.");
+        }
+        if (gameName == null || gameName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Game name null veya boş olamaz.");
+        }
+        if (basePointPerRound <= 0) {
+            throw new IllegalArgumentException("Base point pozitif olmalı.");
+        }
+
         this.id = id;
         this.gameName = gameName;
         this.basePointPerRound = basePointPerRound;
     }
 
-    // Getters
+    // --- Getter'lar (Setter'lar yok) ---
+
     public int getId() {
         return id;
     }
 
     public String getGameName() {
+        // String immutable (değişmez) olduğu için kopyalamaya gerek yok.
         return gameName;
     }
 
@@ -23,21 +45,28 @@ public class Game {
         return basePointPerRound;
     }
 
-    // Setters
-    public void setId(int id) {
-        this.id = id;
+    @Override
+    public String toString() {
+        return String.format("%s (ID: %d, Puan: %d)",
+                this.gameName, this.id, this.basePointPerRound);
     }
 
-    public void setGameName(String gameName) {
-        this.gameName = gameName;
-    }
+    /**
+     * İki Game nesnesini 'id'lerine göre karşılaştırır.
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
 
-    public void setBasePointPerRound(int basePointPerRound) {
-        this.basePointPerRound = basePointPerRound;
+        if (other instanceof Game game) {
+            return this.id == game.id;
+        }
+
+        return false;
     }
 
     @Override
-    public String toString() {
-        return gameName;
+    public int hashCode() {
+        return Integer.hashCode(id);
     }
 }
