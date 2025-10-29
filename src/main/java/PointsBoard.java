@@ -44,11 +44,11 @@ public final class PointsBoard {
     // Madalyaları ata
     private void assignMedals() {
         for (int gamerIndex = 0; gamerIndex < this.gamers.length; gamerIndex++) {
-            if (totalPoints[gamerIndex] >= 2000) {
+            if (totalPoints[gamerIndex] >= 4400) {
                 medals[gamerIndex] = "GOLD";
-            } else if (totalPoints[gamerIndex] >= 1200) {
+            } else if (totalPoints[gamerIndex] >= 3800) {
                 medals[gamerIndex] = "SILVER";
-            } else if (totalPoints[gamerIndex] >= 700) {
+            } else if (totalPoints[gamerIndex] >= 3200) {
                 medals[gamerIndex] = "BRONZE";
             } else {
                 medals[gamerIndex] = "NONE";
