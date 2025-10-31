@@ -1,12 +1,11 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.util.Scanner;
 
 public class FileIO {
 
-    // games.csv dosyasını oku
+    // Read CSV Files
     public static Game[] readGames(String filePath) {
         Game[] games = null;
         int lineCount = 0;
