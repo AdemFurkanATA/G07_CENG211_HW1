@@ -235,9 +235,19 @@ public class Query {
     // Query 5: Total Tournament Points
     public void printTotalTournamentPoints() {
         Match[] allMatches = matchManagement.getAllMatchesFlat();
+
+        Objects.requireNonNull(allMatches, "Match array cannot be null!");
+
+        if (allMatches.length == 0) {
+            throw new IllegalStateException("No matches found!");
+        }
+
         int total = 0;
 
         for (int i = 0; i < allMatches.length; i++) {
+            Objects.requireNonNull(allMatches[i],
+                    "A null element was found in the match array! Index: " + i);
+
             total += allMatches[i].getMatchPoints();
         }
 
@@ -249,7 +259,21 @@ public class Query {
     // Query 6: Medal Distribution
     public void printMedalDistribution() {
         int[] distribution = pointsBoard.getMedalDistribution();
-        int totalGamers = pointsBoard.getGamers().length;
+
+        Objects.requireNonNull(distribution, "Medal distribution cannot be null!");
+
+        if (distribution.length < 4) {
+            throw new IllegalStateException("Medal distribution array must have 4 elements!");
+        }
+
+        Gamer[] gamers = pointsBoard.getGamers();
+        Objects.requireNonNull(gamers, "Gamers array cannot be null!");
+
+        int totalGamers = gamers.length;
+
+        if (totalGamers == 0) {
+            throw new IllegalStateException("No gamers found!");
+        }
 
         System.out.println("6. Medal Distribution");
         System.out.println("Medal Distribution:");
