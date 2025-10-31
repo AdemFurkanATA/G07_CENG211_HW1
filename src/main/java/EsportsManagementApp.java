@@ -20,6 +20,7 @@ public class EsportsManagementApp {
         // QUERY RESULTS
         Query query = new Query(matchManagement, pointsBoard);
 
+        System.out.println();
         query.printHighestScoringMatch();
         query.printLowestScoringMatchAndContributor();
         query.printLowestBonusMatch();

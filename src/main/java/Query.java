@@ -11,7 +11,7 @@ public class Query {
         this.pointsBoard = Objects.requireNonNull(pointsBoard,"PointsBoard cannot be null!");
     }
 
-    // Query 1: En yüksek puanlı maç
+    // Query 1: Highest Scoring Match
     public void printHighestScoringMatch() {
         Match[] allMatches = matchManagement.getAllMatchesFlat();
 
@@ -63,18 +63,48 @@ public class Query {
         System.out.println();
     }
 
-    // Query 2: En düşük puanlı maç ve en çok katkı sağlayan oyun
+    // Query 2: Lowest Scoring Match And Contributor
     public void printLowestScoringMatchAndContributor() {
+        // 1. Temel null ve boşluk kontrolleri
         Match[] allMatches = matchManagement.getAllMatchesFlat();
+
+        Objects.requireNonNull(allMatches, "Match dizisi null olamaz!");
+
+        if (allMatches.length == 0) {
+            throw new IllegalStateException("Hiç maç bulunamadı!");
+        }
+
+        Objects.requireNonNull(allMatches[0], "İlk maç null olamaz!");
+
         Match lowestMatch = allMatches[0];
 
+        // 2. Loop içinde her match'i kontrol et
         for (int i = 1; i < allMatches.length; i++) {
+            Objects.requireNonNull(allMatches[i],
+                    "Match dizisinde null eleman var! Index: " + i);
+
             if (allMatches[i].getMatchPoints() < lowestMatch.getMatchPoints()) {
                 lowestMatch = allMatches[i];
             }
         }
 
-        // En çok katkı sağlayan oyunu bul
+        // 3. Games dizisini kontrol et (contribution hesabı için kritik!)
+        Game[] games = lowestMatch.getGames();
+        Objects.requireNonNull(games, "Match'in oyunları null olamaz!");
+
+        // ⚠️ ÖNEMLİ: Games dizisi 3 elemanlı olmalı (contribution loop 0-2 arası)
+        if (games.length < 3) {
+            throw new IllegalStateException(
+                    "Match en az 3 oyun içermeli! Bulunan: " + games.length);
+        }
+
+        // Her game'in null olmadığını kontrol et
+        for (int i = 0; i < 3; i++) {
+            Objects.requireNonNull(games[i],
+                    "Game dizisinde null eleman var! Index: " + i);
+        }
+
+        // 4. En çok katkı sağlayan oyunu bul
         int maxContribution = lowestMatch.getGameContribution(0);
         int maxIndex = 0;
 
@@ -86,11 +116,31 @@ public class Query {
             }
         }
 
+        // 5. Rounds dizisini kontrol et
+        int[] rounds = lowestMatch.getRounds();
+        Objects.requireNonNull(rounds, "Match'in round'ları null olamaz!");
+
+        if (rounds.length < 3) {
+            throw new IllegalStateException(
+                    "Rounds dizisi en az 3 eleman içermeli! Bulunan: " + rounds.length);
+        }
+
+        // 6. maxIndex'in geçerli olduğunu doğrula (defensive programming)
+        if (maxIndex < 0 || maxIndex >= games.length) {
+            throw new IllegalStateException(
+                    "Geçersiz maxIndex: " + maxIndex);
+        }
+
+        if (maxIndex >= rounds.length) {
+            throw new IllegalStateException(
+                    "maxIndex rounds dizisinin dışında: " + maxIndex);
+        }
+
+        // ====== PRINT KISMI (HİÇ DEĞİŞMEDİ) ======
         System.out.println("2. Lowest-Scoring Match & Most Contributing Game");
         System.out.println("Lowest-Scoring Match:");
         System.out.println("Match ID: " + lowestMatch.getId());
         System.out.print("Games: [");
-        Game[] games = lowestMatch.getGames();
         for (int i = 0; i < games.length; i++) {
             System.out.print(games[i].getGameName());
             if (i < games.length - 1) System.out.print(", ");
@@ -98,7 +148,6 @@ public class Query {
         System.out.println("]");
 
         System.out.print("Rounds: [");
-        int[] rounds = lowestMatch.getRounds();
         for (int i = 0; i < rounds.length; i++) {
             System.out.print(rounds[i]);
             if (i < rounds.length - 1) System.out.print(", ");
@@ -117,7 +166,7 @@ public class Query {
         System.out.println();
     }
 
-    // Query 3: En düşük bonus puanlı maç
+    // Query 3: Lowest Bonus Match
     public void printLowestBonusMatch() {
         Match[] allMatches = matchManagement.getAllMatchesFlat();
         Match lowestBonusMatch = allMatches[0];
@@ -144,7 +193,7 @@ public class Query {
         System.out.println();
     }
 
-    // Query 4: En yüksek puanlı oyuncu
+    // Query 4: Highest Scoring Gamer
     public void printHighestScoringGamer() {
         int gamerIndex = pointsBoard.getHighestScoringGamerIndex();
         Gamer gamer = pointsBoard.getGamers()[gamerIndex];
@@ -159,7 +208,7 @@ public class Query {
         System.out.println();
     }
 
-    // Query 5: Toplam turnuva puanı
+    // Query 5: Total Tournament Points
     public void printTotalTournamentPoints() {
         Match[] allMatches = matchManagement.getAllMatchesFlat();
         int total = 0;
@@ -173,7 +222,7 @@ public class Query {
         System.out.println();
     }
 
-    // Query 6: Madalya dağılımı
+    // Query 6: Medal Distribution
     public void printMedalDistribution() {
         int[] distribution = pointsBoard.getMedalDistribution();
         int totalGamers = pointsBoard.getGamers().length;
