@@ -1,23 +1,41 @@
+import java.util.Objects;
+
 public class Query {
-    private MatchManagement matchManagement;
-    private PointsBoard pointsBoard;
+    private final MatchManagement matchManagement;
+    private final PointsBoard pointsBoard;
 
     // Constructor
     public Query(MatchManagement matchManagement, PointsBoard pointsBoard) {
-        this.matchManagement = matchManagement;
-        this.pointsBoard = pointsBoard;
+        // Null check
+        this.matchManagement = Objects.requireNonNull(matchManagement,"MatchManagement cannot be null!");
+        this.pointsBoard = Objects.requireNonNull(pointsBoard,"PointsBoard cannot be null!");
     }
 
     // Query 1: En yüksek puanlı maç
     public void printHighestScoringMatch() {
         Match[] allMatches = matchManagement.getAllMatchesFlat();
+
+        Objects.requireNonNull(allMatches, "Match array cannot be null!");
+
+        if (allMatches.length == 0) {
+            throw new IllegalStateException("No matches found!");
+        }
+
+        Objects.requireNonNull(allMatches[0], "First match cannot be null!");
+
         Match highestMatch = allMatches[0];
 
         for (int i = 1; i < allMatches.length; i++) {
+            Objects.requireNonNull(allMatches[i],
+                    "A null element was found in the match array! Index: " + i);
+
             if (allMatches[i].getMatchPoints() > highestMatch.getMatchPoints()) {
                 highestMatch = allMatches[i];
             }
         }
+
+        Objects.requireNonNull(highestMatch.getGames(),"Games cannot be null!");
+        Objects.requireNonNull(highestMatch.getRounds(),"Rounds cannot be null!");
 
         System.out.println("1. Highest-Scoring Match");
         System.out.println("Highest-Scoring Match:");
