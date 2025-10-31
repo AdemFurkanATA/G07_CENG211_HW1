@@ -15,7 +15,7 @@ public class EsportsManagementApp {
         MatchManagement matchManagement = new MatchManagement(gamers, games);
 
         // Create Point Table
-        PointsBoard pointsBoard = new PointsBoard(gamers, matchManagement.getMatches());
+        PointsBoard pointsBoard = new PointsBoard(gamers, matchManagement.getAllMatches());
 
         // QUERY RESULTS
         Query query = new Query(matchManagement, pointsBoard);

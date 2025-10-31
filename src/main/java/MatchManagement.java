@@ -1,3 +1,4 @@
+import java.util.Objects;
 import java.util.Random;
 
 public class MatchManagement {
@@ -9,8 +10,8 @@ public class MatchManagement {
 
     // Constructor
     public MatchManagement(Gamer[] gamers, Game[] games) {
-        this.gamers = gamers;
-        this.games = games;
+        this.gamers = Objects.requireNonNull(gamers,"Gamer can not be null!");
+        this.games = Objects.requireNonNull(games,"Gamer can not be null!");
         this.matches = new Match[gamers.length][15];
         this.random = new Random();
         this.matchIdCounter = 1;
@@ -18,7 +19,28 @@ public class MatchManagement {
         generateAllMatches();
     }
 
-    // Tüm maçları oluştur
+    // Generates single match for a gamer
+    private Match generateMatch(Gamer gamer) {
+
+        Objects.requireNonNull(gamer,"Gamer can not be null!");
+
+        // Selects 3 random games
+        Game[] selectedGames = new Game[3];
+        int[] rounds = new int[3];
+
+        for (int i = 0; i < 3; i++) {
+            // Selects 1 random game
+            selectedGames[i] = games[random.nextInt(games.length)];
+
+            // Selects round number between 1 and 10 randomly
+            rounds[i] = random.nextInt(10) + 1;
+        }
+
+        Match match = new Match(matchIdCounter++, selectedGames, rounds, gamer.getExperienceYears());
+        return match;
+    }
+
+    // Generates all matches
     private void generateAllMatches() {
         for (int gamerIndex = 0; gamerIndex < gamers.length; gamerIndex++) {
             for (int matchIndex = 0; matchIndex < 15; matchIndex++) {
@@ -27,40 +49,30 @@ public class MatchManagement {
         }
     }
 
-    // Tek bir maç oluştur
-    private Match generateMatch(Gamer gamer) {
-        // 3 rastgele oyun seç
-        Game[] selectedGames = new Game[3];
-        int[] rounds = new int[3];
+    //------------Getters------------\\
 
-        for (int i = 0; i < 3; i++) {
-            // Rastgele bir oyun seç
-            selectedGames[i] = games[random.nextInt(games.length)];
-
-            // 1 ile 10 arasında rastgele round sayısı
-            rounds[i] = random.nextInt(10) + 1;
+    // Returns all matches
+    public Match[][] getAllMatches() {
+        Match[][] allMatchesCopy = new Match[gamers.length][15];
+        for (int gamerIndex = 0; gamerIndex < gamers.length; gamerIndex++) {
+            for (int matchIndex = 0; matchIndex < 15; matchIndex++) {
+                allMatchesCopy[gamerIndex][matchIndex] = matches[gamerIndex][matchIndex];
+            }
         }
-
-        Match match = new Match(matchIdCounter++, selectedGames, rounds, gamer.getExperienceYears());
-        return match;
+        return allMatchesCopy;
     }
 
-    // Getter
-    public Match[][] getMatches() {
-        return matches;
-    }
-
-    // Belirli bir oyuncunun maçlarını al
+    // Returns all games of given gamer
     public Match[] getGamerMatches(int gamerIndex) {
-        return matches[gamerIndex];
+        return getAllMatches()[gamerIndex];
     }
 
-    // Belirli bir maçı al
+    // Returns specific match according to gamer and match ID
     public Match getMatch(int gamerIndex, int matchIndex) {
-        return matches[gamerIndex][matchIndex];
+        return getAllMatches()[gamerIndex][matchIndex];
     }
 
-    // Tüm maçları tek boyutlu dizi olarak döndür (Query için)
+    // Returns all matches as a 1D array (for Query class)
     public Match[] getAllMatchesFlat() {
         int totalMatches = gamers.length * 15;
         Match[] flatMatches = new Match[totalMatches];
@@ -68,7 +80,7 @@ public class MatchManagement {
 
         for (int i = 0; i < gamers.length; i++) {
             for (int j = 0; j < 15; j++) {
-                flatMatches[index++] = matches[i][j];
+                flatMatches[index++] = getAllMatches()[i][j];
             }
         }
 
