@@ -65,46 +65,40 @@ public class Query {
 
     // Query 2: Lowest Scoring Match And Contributor
     public void printLowestScoringMatchAndContributor() {
-        // 1. Temel null ve boşluk kontrolleri
         Match[] allMatches = matchManagement.getAllMatchesFlat();
 
-        Objects.requireNonNull(allMatches, "Match dizisi null olamaz!");
+        Objects.requireNonNull(allMatches, "Match array cannot be null!");
 
         if (allMatches.length == 0) {
-            throw new IllegalStateException("Hiç maç bulunamadı!");
+            throw new IllegalStateException("No  matches found!");
         }
 
-        Objects.requireNonNull(allMatches[0], "İlk maç null olamaz!");
+        Objects.requireNonNull(allMatches[0], "First match cannot be null!");
 
         Match lowestMatch = allMatches[0];
 
-        // 2. Loop içinde her match'i kontrol et
         for (int i = 1; i < allMatches.length; i++) {
             Objects.requireNonNull(allMatches[i],
-                    "Match dizisinde null eleman var! Index: " + i);
+                    "A null element was found in the Match array! Index: " + i);
 
             if (allMatches[i].getMatchPoints() < lowestMatch.getMatchPoints()) {
                 lowestMatch = allMatches[i];
             }
         }
 
-        // 3. Games dizisini kontrol et (contribution hesabı için kritik!)
         Game[] games = lowestMatch.getGames();
-        Objects.requireNonNull(games, "Match'in oyunları null olamaz!");
+        Objects.requireNonNull(games, "Games cannot be null!");
 
-        // ⚠️ ÖNEMLİ: Games dizisi 3 elemanlı olmalı (contribution loop 0-2 arası)
         if (games.length < 3) {
             throw new IllegalStateException(
-                    "Match en az 3 oyun içermeli! Bulunan: " + games.length);
+                    "Match must contain at least 3 games! Founded: " + games.length);
         }
 
-        // Her game'in null olmadığını kontrol et
         for (int i = 0; i < 3; i++) {
             Objects.requireNonNull(games[i],
-                    "Game dizisinde null eleman var! Index: " + i);
+                    "A null element was found in the Game array! Index: " + i);
         }
 
-        // 4. En çok katkı sağlayan oyunu bul
         int maxContribution = lowestMatch.getGameContribution(0);
         int maxIndex = 0;
 
@@ -116,27 +110,24 @@ public class Query {
             }
         }
 
-        // 5. Rounds dizisini kontrol et
         int[] rounds = lowestMatch.getRounds();
-        Objects.requireNonNull(rounds, "Match'in round'ları null olamaz!");
+        Objects.requireNonNull(rounds, "Rounds cannot be null!");
 
         if (rounds.length < 3) {
             throw new IllegalStateException(
-                    "Rounds dizisi en az 3 eleman içermeli! Bulunan: " + rounds.length);
+                    "Rounds must contain at least 3 games! Bulunan: " + rounds.length);
         }
 
-        // 6. maxIndex'in geçerli olduğunu doğrula (defensive programming)
         if (maxIndex < 0 || maxIndex >= games.length) {
             throw new IllegalStateException(
-                    "Geçersiz maxIndex: " + maxIndex);
+                    "Invalid maxIndex: " + maxIndex);
         }
 
         if (maxIndex >= rounds.length) {
             throw new IllegalStateException(
-                    "maxIndex rounds dizisinin dışında: " + maxIndex);
+                    "maxIndex is outside the rounds array: " + maxIndex);
         }
 
-        // ====== PRINT KISMI (HİÇ DEĞİŞMEDİ) ======
         System.out.println("2. Lowest-Scoring Match & Most Contributing Game");
         System.out.println("Lowest-Scoring Match:");
         System.out.println("Match ID: " + lowestMatch.getId());
@@ -169,19 +160,38 @@ public class Query {
     // Query 3: Lowest Bonus Match
     public void printLowestBonusMatch() {
         Match[] allMatches = matchManagement.getAllMatchesFlat();
+
+        Objects.requireNonNull(allMatches, "Match array cannot be null!");
+
+        if (allMatches.length == 0) {
+            throw new IllegalStateException("No matches found!");
+        }
+
+        Objects.requireNonNull(allMatches[0], "First match cannot be null!");
+
         Match lowestBonusMatch = allMatches[0];
 
         for (int i = 1; i < allMatches.length; i++) {
+            Objects.requireNonNull(allMatches[i],
+                    "A null element was found in the match array! Index: " + i);
+
             if (allMatches[i].getBonusPoints() < lowestBonusMatch.getBonusPoints()) {
                 lowestBonusMatch = allMatches[i];
             }
+        }
+
+        Game[] games = lowestBonusMatch.getGames();
+        Objects.requireNonNull(games, "Games cannot be null!");
+
+        for (int i = 0; i < games.length; i++) {
+            Objects.requireNonNull(games[i],
+                    "A null element was found in the games array! Index: " + i);
         }
 
         System.out.println("3. Match with the Lowest Bonus Points");
         System.out.println("Match with Lowest Bonus Points:");
         System.out.println("Match ID: " + lowestBonusMatch.getId());
         System.out.print("Games: [");
-        Game[] games = lowestBonusMatch.getGames();
         for (int i = 0; i < games.length; i++) {
             System.out.print(games[i].getGameName());
             if (i < games.length - 1) System.out.print(", ");
@@ -196,7 +206,21 @@ public class Query {
     // Query 4: Highest Scoring Gamer
     public void printHighestScoringGamer() {
         int gamerIndex = pointsBoard.getHighestScoringGamerIndex();
-        Gamer gamer = pointsBoard.getGamers()[gamerIndex];
+
+        Gamer[] gamers = pointsBoard.getGamers();
+        Objects.requireNonNull(gamers, "Gamers array cannot be null!");
+
+        if (gamers.length == 0) {
+            throw new IllegalStateException("No gamers found!");
+        }
+
+        if (gamerIndex < 0 || gamerIndex >= gamers.length) {
+            throw new IllegalStateException(
+                    "Invalid gamer index: " + gamerIndex + " (Array length: " + gamers.length + ")");
+        }
+
+        Gamer gamer = gamers[gamerIndex];
+        Objects.requireNonNull(gamer, "Gamer cannot be null at index: " + gamerIndex);
 
         System.out.println("4. Highest-Scoring Gamer");
         System.out.println("Highest-Scoring Gamer:");
