@@ -1,90 +1,72 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.util.Scanner;
 
 public class FileIO {
-
-    // games.csv dosyasını oku
     public static Game[] readGames(String filePath) {
-        Game[] games = null;
-        int lineCount = 0;
 
         try {
-            // Önce satır sayısını say
-            BufferedReader counter = new BufferedReader(new FileReader(filePath));
-            while (counter.readLine() != null) {
-                lineCount++;
+
+            Scanner fileScanner = new Scanner(new File(filePath));
+            Game[] games = new Game[10];
+            fileScanner.nextLine();
+            int count = 0;
+
+            while (fileScanner.hasNextLine()) {
+
+                String line = fileScanner.nextLine();
+                String[] gameInfo = new String[3];
+                gameInfo = line.split(",");
+
+                int id = Integer.parseInt(gameInfo[0]);
+                String gameName = gameInfo[1];
+                int basePointPerRound = Integer.parseInt(gameInfo[2]);
+
+                games[count] = new Game(id, gameName, basePointPerRound);
+                count++;
             }
-            counter.close();
 
-            // Header'ı çıkar
-            lineCount--;
-            games = new Game[lineCount];
-
-            // Şimdi verileri oku
-            BufferedReader reader = new BufferedReader(new FileReader(filePath));
-            String line = reader.readLine(); // Header'ı atla
-            int index = 0;
-
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-                int id = Integer.parseInt(parts[0].trim());
-                String gameName = parts[1].trim();
-                int basePoint = Integer.parseInt(parts[2].trim());
-
-                games[index] = new Game(id, gameName, basePoint);
-                index++;
-            }
-            reader.close();
-
-        } catch (IOException e) {
-            System.out.println("Error reading games file: " + e.getMessage());
+            fileScanner.close();
+            return games;
         }
 
-        return games;
+        catch (IOException e) {
+            System.out.println("Error reading games file: " + e.getMessage());
+            return null;
+        }
     }
 
-    // gamers.csv dosyasını oku
     public static Gamer[] readGamers(String filePath) {
-        Gamer[] gamers = null;
-        int lineCount = 0;
 
         try {
-            // Önce satır sayısını say
-            BufferedReader counter = new BufferedReader(new FileReader(filePath));
-            while (counter.readLine() != null) {
-                lineCount++;
+
+            Scanner fileScanner = new Scanner(new File(filePath));
+
+            Gamer[] gamers = new Gamer[100];
+            fileScanner.nextLine();
+            int count = 0;
+            while (fileScanner.hasNextLine()) {
+
+                String line = fileScanner.nextLine();
+                String[] gamerInfo = new String[5];
+                gamerInfo = line.split(",");
+
+                int id = Integer.parseInt(gamerInfo[0]);
+                String nickName = gamerInfo[1];
+                String name = gamerInfo[2];
+                String phoneNumber = gamerInfo[3];
+                int experience = Integer.parseInt(gamerInfo[4]);
+
+                gamers[count] = new Gamer(id, nickName, name, phoneNumber, experience);
+                count++;
             }
-            counter.close();
 
-            // Header'ı çıkar
-            lineCount--;
-            gamers = new Gamer[lineCount];
-
-            // Şimdi verileri oku
-            BufferedReader reader = new BufferedReader(new FileReader(filePath));
-            String line = reader.readLine(); // Header'ı atla
-            int index = 0;
-
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-                int id = Integer.parseInt(parts[0].trim());
-                String nickname = parts[1].trim();
-                String name = parts[2].trim();
-                String phone = parts[3].trim();
-                int expYears = Integer.parseInt(parts[4].trim());
-
-                gamers[index] = new Gamer(id, nickname, name, phone, expYears);
-                index++;
-            }
-            reader.close();
-
-        } catch (IOException e) {
-            System.out.println("Error reading gamers file: " + e.getMessage());
+            fileScanner.close();
+            return gamers;
         }
-
-        return gamers;
+        catch (IOException e){
+            System.out.println("Error reading gamers file: " + e.getMessage());
+            return null;
+        }
     }
 }
