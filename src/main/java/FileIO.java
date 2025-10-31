@@ -1,42 +1,41 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Scanner;
 
 public class FileIO {
 
-    // Read CSV Files
+    // Reading Games files
     public static Game[] readGames(String filePath) {
         Game[] games = null;
         int lineCount = 0;
 
         try {
-            // Önce satır sayısını say
+
             BufferedReader counter = new BufferedReader(new FileReader(filePath));
             while (counter.readLine() != null) {
                 lineCount++;
             }
             counter.close();
 
-            // Header'ı çıkar
+            // Creating 1D array of games
             lineCount--;
             games = new Game[lineCount];
 
-            // Şimdi verileri oku
+            // Reading CSV file
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
-            String line = reader.readLine(); // Header'ı atla
+            String line = reader.readLine(); // Header row
             int index = 0;
 
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
-                int id = Integer.parseInt(parts[0].trim());
+                int id = Integer.parseInt(parts[0].trim());  // Chancing ID type from String to integer
                 String gameName = parts[1].trim();
-                int basePoint = Integer.parseInt(parts[2].trim());
+                int basePointPerRound = Integer.parseInt(parts[2].trim());   // Chancing base point type from String to integer
 
-                games[index] = new Game(id, gameName, basePoint);
+                games[index] = new Game(id, gameName, basePointPerRound);
                 index++;
             }
-            reader.close();
+            reader.close();  // Closing file
 
         } catch (IOException e) {
             System.out.println("Error reading games file: " + e.getMessage());
@@ -45,40 +44,40 @@ public class FileIO {
         return games;
     }
 
-    // gamers.csv dosyasını oku
+    // Reading Gamers file
     public static Gamer[] readGamers(String filePath) {
         Gamer[] gamers = null;
         int lineCount = 0;
 
         try {
-            // Önce satır sayısını say
+
             BufferedReader counter = new BufferedReader(new FileReader(filePath));
             while (counter.readLine() != null) {
                 lineCount++;
             }
             counter.close();
 
-            // Header'ı çıkar
+            // Creating 1D array of gamers
             lineCount--;
             gamers = new Gamer[lineCount];
 
-            // Şimdi verileri oku
+            // Reading CSV file
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
-            String line = reader.readLine(); // Header'ı atla
+            String line = reader.readLine(); // Header
             int index = 0;
 
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
-                int id = Integer.parseInt(parts[0].trim());
+                int id = Integer.parseInt(parts[0].trim());  // Chancing ID type from String to integer
                 String nickname = parts[1].trim();
                 String name = parts[2].trim();
                 String phone = parts[3].trim();
-                int expYears = Integer.parseInt(parts[4].trim());
+                int expYears = Integer.parseInt(parts[4].trim());  // Chancing base point type from String to integer
 
                 gamers[index] = new Gamer(id, nickname, name, phone, expYears);
                 index++;
             }
-            reader.close();
+            reader.close();  // Closing file
 
         } catch (IOException e) {
             System.out.println("Error reading gamers file: " + e.getMessage());
