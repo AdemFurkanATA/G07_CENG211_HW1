@@ -14,11 +14,9 @@ public class Gamer {
      * 1. Normal Constructor
      */
     public Gamer(int id, String nickname, String name, String phoneNumber, int experienceYears) {
-        // Validasyonlar (ilk attığın koddaki gibi) burada olmalı.
-        // Onları tekrar yazmıyorum, mantık aynı.
+        // Validasyonlar
         if (id <= 0) throw new IllegalArgumentException("Gamer ID must be positive.");
         if (nickname == null) throw new IllegalArgumentException("Nickname cannot be null.");
-        // ... vb.
 
         this.id = id;
         this.nickname = nickname;
@@ -31,6 +29,7 @@ public class Gamer {
     /**
      * 2. Copy Constructor
      */
+
     public Gamer(Gamer other) {
         this.id = other.id;
         this.nickname = other.nickname;
