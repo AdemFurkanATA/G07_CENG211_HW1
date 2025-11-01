@@ -1,43 +1,56 @@
 /**
- * Bir oyunu temsil eder. Bu sınıf 'immutable' (değişmez) olarak tasarlandı.
- * Bir nesne yaratıldıktan sonra içeriği değiştirilemez.
+ * Bir oyunu temsil eder. B
  */
+public class Game {
 
-public final class Game { // Sınıf final, extend edilemez
-
-    // Alanlar final, sadece constructor'da atanabilir
-    private final int id;
-    private final String gameName;
-    private final int basePointPerRound;
+    private int id;
+    private String gameName;
+    private int basePointPerRound;
 
     /**
-     * Yeni bir Game nesnesi yaratır.
-     * Geçersiz parametrelere karşı constructor'da validasyon yapılır.
+     * 1. Normal Constructor
      */
-    public Game(int id, String gameName, int basePointPerRound) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("Game ID pozitif olmalı.");
-        }
-        if (gameName == null || gameName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Game name null veya boş olamaz.");
-        }
-        if (basePointPerRound <= 0) {
-            throw new IllegalArgumentException("Base point pozitif olmalı.");
-        }
 
+    public Game(int id, String gameName, int basePointPerRound) {
+        // Validasyonları geçiyorum, olduğunu varsayıyorum.
         this.id = id;
         this.gameName = gameName;
         this.basePointPerRound = basePointPerRound;
     }
 
-    // --- Getter'lar (Setter'lar yok) ---
+    /**
+     * 2. Copy Constructor
+     * Başka bir 'Game' nesnesini alıp, onun bilgilerini
+     * YENİ yaratılan bu nesneye kopyalar (klonlar).
+     */
+
+    public Game(Game other) {
+        this.id = other.id;
+        this.gameName = other.gameName;
+        this.basePointPerRound = other.basePointPerRound;
+    }
+
+    // --- SETTERLAR ---
+
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
+    }
+
+    public void setBasePointPerRound(int basePointPerRound) {
+        this.basePointPerRound = basePointPerRound;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    // --- Getter'lar ---
 
     public int getId() {
         return id;
     }
 
     public String getGameName() {
-        // String immutable (değişmez) olduğu için kopyalamaya gerek yok.
         return gameName;
     }
 
@@ -45,28 +58,10 @@ public final class Game { // Sınıf final, extend edilemez
         return basePointPerRound;
     }
 
+
     @Override
     public String toString() {
-        return String.format("%s (ID: %d, Puan: %d)",
-                this.gameName, this.id, this.basePointPerRound);
-    }
-
-    /**
-     * İki Game nesnesini 'id'lerine göre karşılaştırır.
-     */
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-
-        if (other instanceof Game game) {
-            return this.id == game.id;
-        }
-
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Integer.hashCode(id);
+        return String.format("%s (ID: %d | @%d)",
+                this.gameName, this.id, this.hashCode());
     }
 }

@@ -1,38 +1,60 @@
 import java.util.Objects;
 import java.util.Random;
 
+/**
+ * Maçları oluşturur ve yönetir.
+ */
 public class MatchManagement {
     private Match[][] matches; // [gamerCount][15]
-    private Gamer[] gamers;
-    private Game[] games;
+    private Gamer[] gamers;    // Güvenli, içerideki kopya
+    private Game[] games;      // Güvenli, içerideki kopya
     private Random random;
     private int matchIdCounter;
 
-    // Constructor
+    /**
+     * Constructor: Gelen 'gamers' ve 'games' dizilerinin 'deep copy'sini alır.
+     */
     public MatchManagement(Gamer[] gamers, Game[] games) {
-        this.gamers = Objects.requireNonNull(gamers,"Gamer can not be null!");
-        this.games = Objects.requireNonNull(games,"Gamer can not be null!");
+        // Null kontrolleri
+        Objects.requireNonNull(gamers,"Gamer array can not be null!");
+        Objects.requireNonNull(games,"Game array can not be null!");
+
+
+        // Dışarıdaki 'gamers' dizisinin referansını değil, klonunu al
+        this.gamers = new Gamer[gamers.length];
+        for (int i = 0; i < gamers.length; i++) {
+            // Gamer'ın Copy Constructor'ını çağır
+            this.gamers[i] = new Gamer(gamers[i]);
+        }
+
+        // Dışarıdaki 'games' dizisinin referansını değil, klonunu al
+        this.games = new Game[games.length];
+        for (int i = 0; i < games.length; i++) {
+            // Game'in Copy Constructor'ını çağır
+            this.games[i] = new Game(games[i]);
+        }
+
+        // Artık 'this.gamers' ve 'this.games' dışarıdan bağımsız, GÜVENLİ.
+
         this.matches = new Match[gamers.length][15];
         this.random = new Random();
         this.matchIdCounter = 1;
 
+        // Maçları içerideki güvenli dizilerle oluştur
         generateAllMatches();
     }
 
-    // Generates single match for a gamer
+    /**
+     * 'this.gamers' ve 'this.games' (içerideki güvenli kopyalar) ile maç yaratır.
+     */
+
     private Match generateMatch(Gamer gamer) {
-
-        Objects.requireNonNull(gamer,"Gamer can not be null!");
-
-        // Selects 3 random games
         Game[] selectedGames = new Game[3];
         int[] rounds = new int[3];
 
         for (int i = 0; i < 3; i++) {
-            // Selects 1 random game
-            selectedGames[i] = games[random.nextInt(games.length)];
-
-            // Selects round number between 1 and 10 randomly
+            // 'this.games' içinden seç
+            selectedGames[i] = this.games[random.nextInt(this.games.length)];
             rounds[i] = random.nextInt(10) + 1;
         }
 
@@ -40,50 +62,75 @@ public class MatchManagement {
         return match;
     }
 
-    // Generates all matches
+    /**
+     * 'this.gamers' (içerideki güvenli kopya) ile tüm maçları yaratır.
+     */
     private void generateAllMatches() {
-        for (int gamerIndex = 0; gamerIndex < gamers.length; gamerIndex++) {
+        for (int gamerIndex = 0; gamerIndex < this.gamers.length; gamerIndex++) {
             for (int matchIndex = 0; matchIndex < 15; matchIndex++) {
-                matches[gamerIndex][matchIndex] = generateMatch(gamers[gamerIndex]);
+                matches[gamerIndex][matchIndex] = generateMatch(this.gamers[gamerIndex]);
             }
         }
     }
 
-    //------------Getters------------\\
+    //------------Getters (Güvenli, Deep Copy'li ve Verimli)------------\\
 
-    // Returns all matches
     public Match[][] getAllMatches() {
-        Match[][] allMatchesCopy = new Match[gamers.length][15];
-        for (int gamerIndex = 0; gamerIndex < gamers.length; gamerIndex++) {
+        Match[][] allMatchesCopy = new Match[this.gamers.length][15];
+        for (int gamerIndex = 0; gamerIndex < this.gamers.length; gamerIndex++) {
             for (int matchIndex = 0; matchIndex < 15; matchIndex++) {
-                allMatchesCopy[gamerIndex][matchIndex] = matches[gamerIndex][matchIndex];
+                // Referansı değil, YENİ BİR KOPYASINI (KLONUNU) ver
+                // Match'in Copy Constructor'ını çağır
+                allMatchesCopy[gamerIndex][matchIndex] = new Match(this.matches[gamerIndex][matchIndex]);
             }
         }
         return allMatchesCopy;
     }
 
-    // Returns all games of given gamer
+    /**
+     * Belirli bir oyuncunun maçlarının 'deep copy' kopyasını 1D dizi olarak döndürür.
+     */
     public Match[] getGamerMatches(int gamerIndex) {
-        return getAllMatches()[gamerIndex];
+        // Hata kontrolü
+        if (gamerIndex < 0 || gamerIndex >= this.gamers.length) {
+            throw new IllegalArgumentException("Invalid gamer index: " + gamerIndex);
+        }
+
+        Match[] gamerMatchesCopy = new Match[15];
+        for (int matchIndex = 0; matchIndex < 15; matchIndex++) {
+            // Klon ver
+            gamerMatchesCopy[matchIndex] = new Match(this.matches[gamerIndex][matchIndex]);
+        }
+        return gamerMatchesCopy;
     }
 
-    // Returns specific match according to gamer and match ID
+    /**
+     * Belirli bir maçın 'deep copy' kopyasını (klonunu) döndürür.
+     */
     public Match getMatch(int gamerIndex, int matchIndex) {
-        return getAllMatches()[gamerIndex][matchIndex];
+        // Hata kontrolü
+        if (gamerIndex < 0 || gamerIndex >= this.gamers.length || matchIndex < 0 || matchIndex >= 15) {
+            throw new IllegalArgumentException("Invalid match indices.");
+        }
+
+        // Doğrudan 'this.matches'e eriş ve SADECE o 1 nesneyi klonla
+        return new Match(this.matches[gamerIndex][matchIndex]);
     }
 
-    // Returns all matches as a 1D array (for Query class)
+    /**
+     * Tüm maçların 'deep copy' kopyasını 1D (düzleştirilmiş) dizi olarak döndürür.
+     */
     public Match[] getAllMatchesFlat() {
-        int totalMatches = gamers.length * 15;
+        int totalMatches = this.gamers.length * 15;
         Match[] flatMatches = new Match[totalMatches];
         int index = 0;
 
-        for (int i = 0; i < gamers.length; i++) {
+        for (int i = 0; i < this.gamers.length; i++) {
             for (int j = 0; j < 15; j++) {
-                flatMatches[index++] = getAllMatches()[i][j];
+                // Klonla
+                flatMatches[index++] = new Match(this.matches[i][j]);
             }
         }
-
         return flatMatches;
     }
 }

@@ -1,92 +1,120 @@
 import java.util.Arrays;
 
-public final class Match {
-    private final int id;
-    private final Game[] games; // 3 games
-    private final int[] rounds; // round count per game
-    private final int rawPoints;
-    private final int skillPoints;
-    private final int bonusPoints;
-    private final int matchPoints;
+public class Match {
 
+    private int id;
+    private Game[] games; // 3 games
+    private int[] rounds; // round count per game
+    private int experienceYears; // Puan hesaplaması
+
+    // Hesaplanan alanlar
+    private int rawPoints;
+    private int skillPoints;
+    private int bonusPoints;
+    private int matchPoints;
+
+    /**
+     * 1. Normal Constructor (Savunmacı Deep Copy ile)
+     */
     public Match(int id, Game[] games, int[] rounds, int experienceYears) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("Match ID must be positive.");
-        }
-        if (games == null || games.length != 3) {
-            throw new IllegalArgumentException("Exactly 3 games are required.");
-        }
-        if (rounds == null || rounds.length != 3) {
-            throw new IllegalArgumentException("Exactly 3 round counts are required.");
-        }
-        for (int i = 0; i < 3; i++) {
-            if (games[i] == null) {
-                throw new IllegalArgumentException("Game at index " + i + " cannot be null.");
-            }
-            if (rounds[i] <= 0) {
-                throw new IllegalArgumentException("Round count must be positive at index " + i + ".");
-            }
-        }
-        if (experienceYears < 0) {
-            throw new IllegalArgumentException("Experience years cannot be negative.");
-        }
+
+        if (id <= 0) throw new IllegalArgumentException("Match ID must be positive.");
+        if (games == null || games.length != 3) throw new IllegalArgumentException("Exactly 3 games are required.");
 
         this.id = id;
-        this.games = Arrays.copyOf(games, 3);
-        this.rounds = Arrays.copyOf(rounds, 3);
 
+        // --- GÜVENLİK (Constructor Deep Copy) ---
+
+        this.games = new Game[games.length];
+        for (int i = 0; i < games.length; i++) {
+            if (games[i] == null) throw new IllegalArgumentException("Game at index " + i + " cannot be null.");
+            // 'Game'in copy constructor'ını çağırıyoruz.
+            this.games[i] = new Game(games[i]);
+        }
+
+        // 'int[]' için 'Arrays.copyOf'
+        this.rounds = Arrays.copyOf(rounds, rounds.length);
+        this.experienceYears = experienceYears;
+
+        // Puanları hesapla
+        recalculatePoints();
+    }
+
+    /**
+     * 2. Copy Constructor (Deep Copy)
+     */
+    public Match(Match other) {
+        this.id = other.id;
+
+        // --- Zincirleme Deep Copy ---
+        this.games = new Game[other.games.length];
+        for (int i = 0; i < other.games.length; i++) {
+            this.games[i] = new Game(other.games[i]); // Game'in copy constructor'ı
+        }
+
+        this.rounds = Arrays.copyOf(other.rounds, other.rounds.length);
+        this.experienceYears = other.experienceYears;
+        this.rawPoints = other.rawPoints;
+        this.skillPoints = other.skillPoints;
+        this.bonusPoints = other.bonusPoints;
+        this.matchPoints = other.matchPoints;
+    }
+
+    /**
+     * Puanları hesaplamak için private metot
+     */
+    private void recalculatePoints() {
         int computedRaw = 0;
         for (int i = 0; i < 3; i++) {
             computedRaw += this.rounds[i] * this.games[i].getBasePointPerRound();
         }
         this.rawPoints = computedRaw;
 
-        int expYears = Math.min(experienceYears, 10);
+        int expYears = Math.min(this.experienceYears, 10);
         double skillMultiplier = 1 + (expYears * 0.02);
         this.skillPoints = (int) Math.floor(this.rawPoints * skillMultiplier);
 
-        int bonus;
-        if (this.rawPoints < 200) {
-            bonus = 10;
-        } else if (this.rawPoints < 400) {
-            bonus = 25;
-        } else if (this.rawPoints < 600) {
-            bonus = 50;
-        } else {
-            bonus = 100;
-        }
-        this.bonusPoints = bonus;
+        if (this.rawPoints < 200) this.bonusPoints = 10;
+        else if (this.rawPoints < 400) this.bonusPoints = 25;
+        else if (this.rawPoints < 600) this.bonusPoints = 50;
+        else this.bonusPoints = 100;
+
         this.matchPoints = this.skillPoints + this.bonusPoints;
     }
 
-    // Getters (arrays return copies)
+    // --- Setter'lar ---
+    // --- Getter'lar ---
+
     public int getId() { return id; }
-    public Game[] getGames() { return Arrays.copyOf(this.games, this.games.length); }
+
+    public Game[] getGames() {
+        // Güvenli Getter (Deep Copy)
+        Game[] kopyaCikis = new Game[this.games.length];
+        for (int i = 0; i < this.games.length; i++) {
+            kopyaCikis[i] = new Game(this.games[i]); // Klon ver
+        }
+        return kopyaCikis;
+    }
+
     public int[] getRounds() { return Arrays.copyOf(this.rounds, this.rounds.length); }
     public int getRawPoints() { return rawPoints; }
     public int getSkillPoints() { return skillPoints; }
     public int getBonusPoints() { return bonusPoints; }
     public int getMatchPoints() { return matchPoints; }
 
-    // Contribution of a single game
+    /**
+     * Bir oyunun maça olan katkısını hesaplar.
+     */
     public int getGameContribution(int gameIndex) {
         if (gameIndex < 0 || gameIndex >= this.games.length) {
             throw new IllegalArgumentException("Invalid game index: " + gameIndex);
         }
+        // İçerideki güvenli 'games' ve 'rounds' dizilerini kullanır
         return this.rounds[gameIndex] * this.games[gameIndex].getBasePointPerRound();
     }
 
     @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-        if (other instanceof Match m) {
-            return this.id == m.id;
-        }
-        return false;
-    }
-
+    public boolean equals(Object other) { /* ... */ return false; }
     @Override
-    public int hashCode() {
-        return Integer.hashCode(id);
-    }
+    public int hashCode() { /* ... */ return 0; }
 }

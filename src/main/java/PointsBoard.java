@@ -1,43 +1,83 @@
 import java.util.Arrays;
 
-/**
- * Puan tablosunu ve hesaplanmış sonuçları tutar.
- * Bu nesne yaratıldıktan sonra içeriği değişmez (immutable).
- */
-public final class PointsBoard {
 
-    private final Gamer[] gamers; // Oyuncuların kopyası
-    private final int[] totalPoints;
-    private final double[] averagePoints;
-    private final String[] medals;
+public class PointsBoard {
 
-    // Constructor
-    public PointsBoard(Gamer[] gamers, Match[][] matches) {
-        // Dışarıdan gelen 'gamers' dizisinin referansını değil, kopyasını al
-        this.gamers = Arrays.copyOf(gamers, gamers.length);
+    private Gamer[] gamers;
+    private Match[][] matches;
+    private int[] totalPoints;
+    private double[] averagePoints;
+    private String[] medals;
 
-        // Hesaplama sonuçları için dizileri oluştur
+    /**
+     * 1. Normal Constructor (Savunmacı Deep Copy ile)
+     */
+    public PointsBoard(Gamer[] disaridanGelenGamers, Match[][] disaridanGelenMatches) {
+
+        // --- GÜVENLİK 1: 'gamers' DİZİSİNİ DEEP COPY YAP ---
+        this.gamers = new Gamer[disaridanGelenGamers.length];
+        for (int i = 0; i < disaridanGelenGamers.length; i++) {
+            this.gamers[i] = new Gamer(disaridanGelenGamers[i]); // Gamer Copy Constructor
+        }
+
+        // --- GÜVENLİK 2: 'matches' DİZİSİNİ (2D) DEEP COPY YAP ---
+        this.matches = new Match[disaridanGelenMatches.length][];
+        for (int i = 0; i < disaridanGelenMatches.length; i++) {
+            this.matches[i] = new Match[disaridanGelenMatches[i].length];
+            for (int j = 0; j < disaridanGelenMatches[i].length; j++) {
+                this.matches[i][j] = new Match(disaridanGelenMatches[i][j]); // Match Copy Constructor
+            }
+        }
+
+        // Hesaplama dizilerini oluştur
         this.totalPoints = new int[this.gamers.length];
         this.averagePoints = new double[this.gamers.length];
         this.medals = new String[this.gamers.length];
 
-        // Constructor'da tüm hesaplamaları yap
-        calculateAllPoints(matches);
+        // Hesaplamaları içerideki KOPYA dizilerle yap
+        calculateAllPoints(this.matches);
         assignMedals();
     }
+
+    /**
+     * 2. Copy Constructor (Deep Copy)
+     * Tüm board'u klonlar.
+     */
+    public PointsBoard(PointsBoard other) {
+
+        // 'gamers' dizisinin 'deep copy'si
+        this.gamers = new Gamer[other.gamers.length];
+        for (int i = 0; i < other.gamers.length; i++) {
+            this.gamers[i] = new Gamer(other.gamers[i]);
+        }
+
+        // 'matches' (2D) dizisinin 'deep copy'si
+        this.matches = new Match[other.matches.length][];
+        for (int i = 0; i < other.matches.length; i++) {
+            this.matches[i] = new Match[other.matches[i].length];
+            for (int j = 0; j < other.matches[i].length; j++) {
+                this.matches[i][j] = new Match(other.matches[i][j]);
+            }
+        }
+
+        // 'int[]', 'double[]', 'String[]' için 'Arrays.copyOf' güvenlidir
+        this.totalPoints = Arrays.copyOf(other.totalPoints, other.totalPoints.length);
+        this.averagePoints = Arrays.copyOf(other.averagePoints, other.averagePoints.length);
+        this.medals = Arrays.copyOf(other.medals, other.medals.length);
+    }
+
 
     // Puanları hesapla
     private void calculateAllPoints(Match[][] matches) {
         for (int gamerIndex = 0; gamerIndex < this.gamers.length; gamerIndex++) {
             int total = 0;
-
             // O oyuncunun tüm maçlarını for-each ile dön
-            for (Match match : matches[gamerIndex]) {
+            // (Artık 'matches' parametresine gerek yok, 'this.matches' kullanabilir)
+            for (Match match : this.matches[gamerIndex]) {
                 total += match.getMatchPoints();
             }
-
             totalPoints[gamerIndex] = total;
-            averagePoints[gamerIndex] = total / 15.0;
+            averagePoints[gamerIndex] = total / 15.0; // 15.0'ın sabit olmaması lazım ama orijinalde böyleydi
         }
     }
 
@@ -56,12 +96,18 @@ public final class PointsBoard {
         }
     }
 
-    // --- Getters ---
+    // --- Getters
 
     public Gamer[] getGamers() {
-        // İçerideki diziyi sızdırma, kopyasını ver
-        return Arrays.copyOf(this.gamers, this.gamers.length);
+        Gamer[] kopyaCikis = new Gamer[this.gamers.length];
+        for (int i = 0; i < this.gamers.length; i++) {
+            kopyaCikis[i] = new Gamer(this.gamers[i]); // Klon ver
+        }
+        return kopyaCikis;
     }
+
+    // Bu getter'lar primitive/immutable (int, double, String) döndürdüğü için
+    // 'deep copy'ye ihtiyaç duymazlar, zaten güvenlidirler.
 
     public int getTotalPoints(int gamerIndex) {
         return totalPoints[gamerIndex];
@@ -93,23 +139,15 @@ public final class PointsBoard {
     public int[] getMedalDistribution() {
         int[] distribution = new int[4]; // GOLD, SILVER, BRONZE, NONE
 
-        // Madalya dizisini for-each ile dön
+        // 'this.medals' dizisini (içerideki güvenli kopya) kullan
         for (String medal : this.medals) {
             switch (medal) {
-                case "GOLD":
-                    distribution[0]++;
-                    break;
-                case "SILVER":
-                    distribution[1]++;
-                    break;
-                case "BRONZE":
-                    distribution[2]++;
-                    break;
-                case "NONE":
-                    distribution[3]++;
-                    break;
+                case "GOLD": distribution[0]++; break;
+                case "SILVER": distribution[1]++; break;
+                case "BRONZE": distribution[2]++; break;
+                case "NONE": distribution[3]++; break;
             }
         }
-        return distribution; // Yeni yaratılan diziyi döndür
+        return distribution;
     }
 }
