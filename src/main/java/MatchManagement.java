@@ -34,7 +34,6 @@ public class MatchManagement {
             this.games[i] = new Game(games[i]);
         }
 
-        // Artık 'this.gamers' ve 'this.games' dışarıdan bağımsız, GÜVENLİ.
 
         this.matches = new Match[gamers.length][15];
         this.random = new Random();
@@ -73,13 +72,12 @@ public class MatchManagement {
         }
     }
 
-    //------------Getters (Güvenli, Deep Copy'li ve Verimli)------------\\
+    //Getters
 
     public Match[][] getAllMatches() {
         Match[][] allMatchesCopy = new Match[this.gamers.length][15];
         for (int gamerIndex = 0; gamerIndex < this.gamers.length; gamerIndex++) {
             for (int matchIndex = 0; matchIndex < 15; matchIndex++) {
-                // Referansı değil, YENİ BİR KOPYASINI (KLONUNU) ver
                 // Match'in Copy Constructor'ını çağır
                 allMatchesCopy[gamerIndex][matchIndex] = new Match(this.matches[gamerIndex][matchIndex]);
             }

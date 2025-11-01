@@ -14,13 +14,13 @@ public class PointsBoard {
      */
     public PointsBoard(Gamer[] disaridanGelenGamers, Match[][] disaridanGelenMatches) {
 
-        // --- GÜVENLİK 1: 'gamers' DİZİSİNİ DEEP COPY YAP ---
+        //'gamers' dizisini deep copy yap
         this.gamers = new Gamer[disaridanGelenGamers.length];
         for (int i = 0; i < disaridanGelenGamers.length; i++) {
             this.gamers[i] = new Gamer(disaridanGelenGamers[i]); // Gamer Copy Constructor
         }
 
-        // --- GÜVENLİK 2: 'matches' DİZİSİNİ (2D) DEEP COPY YAP ---
+        //'matches' dizisini (2D) deep copy yap
         this.matches = new Match[disaridanGelenMatches.length][];
         for (int i = 0; i < disaridanGelenMatches.length; i++) {
             this.matches[i] = new Match[disaridanGelenMatches[i].length];
@@ -72,12 +72,11 @@ public class PointsBoard {
         for (int gamerIndex = 0; gamerIndex < this.gamers.length; gamerIndex++) {
             int total = 0;
             // O oyuncunun tüm maçlarını for-each ile dön
-            // (Artık 'matches' parametresine gerek yok, 'this.matches' kullanabilir)
             for (Match match : this.matches[gamerIndex]) {
                 total += match.getMatchPoints();
             }
             totalPoints[gamerIndex] = total;
-            averagePoints[gamerIndex] = total / 15.0; // 15.0'ın sabit olmaması lazım ama orijinalde böyleydi
+            averagePoints[gamerIndex] = total / 15.0; // 15 maç var
         }
     }
 
@@ -106,8 +105,8 @@ public class PointsBoard {
         return kopyaCikis;
     }
 
-    // Bu getter'lar primitive/immutable (int, double, String) döndürdüğü için
-    // 'deep copy'ye ihtiyaç duymazlar, zaten güvenlidirler.
+    // Bu getter'lar primitive döndürdüğü için
+    // 'deep copy'ye ihtiyaç duymazlar
 
     public int getTotalPoints(int gamerIndex) {
         return totalPoints[gamerIndex];

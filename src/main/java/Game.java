@@ -12,7 +12,6 @@ public class Game {
      */
 
     public Game(int id, String gameName, int basePointPerRound) {
-        // Validasyonları geçiyorum, olduğunu varsayıyorum.
         this.id = id;
         this.gameName = gameName;
         this.basePointPerRound = basePointPerRound;
