@@ -90,9 +90,6 @@ public class FileIO {
             return null;
         }
 
-        // Summary
-        System.out.println("Games loaded: " + validCount + " successful, " + errorCount + " errors");
-
         // If no valid data found
         if (validCount == 0) {
             System.err.println("Warning: No valid games found in file");
@@ -228,9 +225,6 @@ public class FileIO {
             System.err.println("Error reading gamers file: " + e.getMessage());
             return null;
         }
-
-        // Summary
-        System.out.println("Gamers loaded: " + validCount + " successful, " + errorCount + " errors");
 
         // If no valid data found
         if (validCount == 0) {
