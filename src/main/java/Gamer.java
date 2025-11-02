@@ -1,7 +1,3 @@
-
-/**
- * Bir oyuncuyu temsil eder.
- */
 public class Gamer {
 
     private int id;
@@ -10,11 +6,8 @@ public class Gamer {
     private String phoneNumber;
     private int experienceYears;
 
-    /**
-     * 1. Normal Constructor
-     */
     public Gamer(int id, String nickname, String name, String phoneNumber, int experienceYears) {
-        // Validasyonlar
+
         if (id <= 0) throw new IllegalArgumentException("Gamer ID must be positive.");
         if (nickname == null) throw new IllegalArgumentException("Nickname cannot be null.");
 
@@ -25,11 +18,7 @@ public class Gamer {
         this.experienceYears = experienceYears;
     }
 
-    // DEEP COPY
-    /**
-     * 2. Copy Constructor
-     */
-
+    // Copy Constructor
     public Gamer(Gamer other) {
         this.id = other.id;
         this.nickname = other.nickname;
@@ -38,7 +27,7 @@ public class Gamer {
         this.experienceYears = other.experienceYears;
     }
 
-    // Bu metotlar, nesne yaratıldıktan sonra içini değiştirmemizi sağlar.
+    // Setters
 
     public void setId(int id) {
         this.id = id;

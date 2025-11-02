@@ -9,49 +9,37 @@ public class PointsBoard {
     private double[] averagePoints;
     private String[] medals;
 
-    /**
-     * 1. Normal Constructor (Savunmacı Deep Copy ile)
-     */
-    public PointsBoard(Gamer[] disaridanGelenGamers, Match[][] disaridanGelenMatches) {
+    public PointsBoard(Gamer[] fromOutsideGamers, Match[][] fromOutsideMatches) {
 
-        //'gamers' dizisini deep copy yap
-        this.gamers = new Gamer[disaridanGelenGamers.length];
-        for (int i = 0; i < disaridanGelenGamers.length; i++) {
-            this.gamers[i] = new Gamer(disaridanGelenGamers[i]); // Gamer Copy Constructor
+        this.gamers = new Gamer[fromOutsideGamers.length];
+        for (int i = 0; i < fromOutsideGamers.length; i++) {
+            this.gamers[i] = new Gamer(fromOutsideGamers[i]); // Gamer Copy Constructor
         }
 
-        //'matches' dizisini (2D) deep copy yap
-        this.matches = new Match[disaridanGelenMatches.length][];
-        for (int i = 0; i < disaridanGelenMatches.length; i++) {
-            this.matches[i] = new Match[disaridanGelenMatches[i].length];
-            for (int j = 0; j < disaridanGelenMatches[i].length; j++) {
-                this.matches[i][j] = new Match(disaridanGelenMatches[i][j]); // Match Copy Constructor
+        this.matches = new Match[fromOutsideMatches.length][];
+        for (int i = 0; i < fromOutsideMatches.length; i++) {
+            this.matches[i] = new Match[fromOutsideMatches[i].length];
+            for (int j = 0; j < fromOutsideMatches[i].length; j++) {
+                this.matches[i][j] = new Match(fromOutsideMatches[i][j]); // Match Copy Constructor
             }
         }
 
-        // Hesaplama dizilerini oluştur
         this.totalPoints = new int[this.gamers.length];
         this.averagePoints = new double[this.gamers.length];
         this.medals = new String[this.gamers.length];
 
-        // Hesaplamaları içerideki KOPYA dizilerle yap
         calculateAllPoints(this.matches);
         assignMedals();
     }
 
-    /**
-     * 2. Copy Constructor (Deep Copy)
-     * Tüm board'u klonlar.
-     */
+    // Copy Constructor
     public PointsBoard(PointsBoard other) {
 
-        // 'gamers' dizisinin 'deep copy'si
         this.gamers = new Gamer[other.gamers.length];
         for (int i = 0; i < other.gamers.length; i++) {
             this.gamers[i] = new Gamer(other.gamers[i]);
         }
 
-        // 'matches' (2D) dizisinin 'deep copy'si
         this.matches = new Match[other.matches.length][];
         for (int i = 0; i < other.matches.length; i++) {
             this.matches[i] = new Match[other.matches[i].length];
@@ -60,18 +48,15 @@ public class PointsBoard {
             }
         }
 
-        // 'int[]', 'double[]', 'String[]' için 'Arrays.copyOf' güvenlidir
         this.totalPoints = Arrays.copyOf(other.totalPoints, other.totalPoints.length);
         this.averagePoints = Arrays.copyOf(other.averagePoints, other.averagePoints.length);
         this.medals = Arrays.copyOf(other.medals, other.medals.length);
     }
 
-
-    // Puanları hesapla
+    // Calculations
     private void calculateAllPoints(Match[][] matches) {
         for (int gamerIndex = 0; gamerIndex < this.gamers.length; gamerIndex++) {
             int total = 0;
-            // O oyuncunun tüm maçlarını for-each ile dön
             for (Match match : this.matches[gamerIndex]) {
                 total += match.getMatchPoints();
             }
@@ -80,7 +65,6 @@ public class PointsBoard {
         }
     }
 
-    // Madalyaları ata
     private void assignMedals() {
         for (int gamerIndex = 0; gamerIndex < this.gamers.length; gamerIndex++) {
             if (totalPoints[gamerIndex] >= 4400) {
@@ -105,8 +89,6 @@ public class PointsBoard {
         return kopyaCikis;
     }
 
-    // Bu getter'lar primitive döndürdüğü için
-    // 'deep copy'ye ihtiyaç duymazlar
 
     public int getTotalPoints(int gamerIndex) {
         return totalPoints[gamerIndex];
@@ -120,7 +102,6 @@ public class PointsBoard {
         return medals[gamerIndex];
     }
 
-    // En yüksek puanlı oyuncunun index'ini bul
     public int getHighestScoringGamerIndex() {
         int maxIndex = 0;
         int maxPoints = totalPoints[0];
@@ -134,11 +115,9 @@ public class PointsBoard {
         return maxIndex;
     }
 
-    // Madalya dağılımını hesapla
     public int[] getMedalDistribution() {
         int[] distribution = new int[4]; // GOLD, SILVER, BRONZE, NONE
 
-        // 'this.medals' dizisini (içerideki güvenli kopya) kullan
         for (String medal : this.medals) {
             switch (medal) {
                 case "GOLD": distribution[0]++; break;

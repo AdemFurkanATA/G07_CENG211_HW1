@@ -1,59 +1,38 @@
 import java.util.Objects;
 import java.util.Random;
 
-/**
- * Maçları oluşturur ve yönetir.
- */
 public class MatchManagement {
     private Match[][] matches; // [gamerCount][15]
-    private Gamer[] gamers;    // Güvenli, içerideki kopya
-    private Game[] games;      // Güvenli, içerideki kopya
+    private Gamer[] gamers;
+    private Game[] games;
     private Random random;
     private int matchIdCounter;
 
-    /**
-     * Constructor: Gelen 'gamers' ve 'games' dizilerinin 'deep copy'sini alır.
-     */
+    // Constructor
     public MatchManagement(Gamer[] gamers, Game[] games) {
-        // Null kontrolleri
-        Objects.requireNonNull(gamers,"Gamer array can not be null!");
-        Objects.requireNonNull(games,"Game array can not be null!");
-
-
-        // Dışarıdaki 'gamers' dizisinin referansını değil, klonunu al
-        this.gamers = new Gamer[gamers.length];
-        for (int i = 0; i < gamers.length; i++) {
-            // Gamer'ın Copy Constructor'ını çağır
-            this.gamers[i] = new Gamer(gamers[i]);
-        }
-
-        // Dışarıdaki 'games' dizisinin referansını değil, klonunu al
-        this.games = new Game[games.length];
-        for (int i = 0; i < games.length; i++) {
-            // Game'in Copy Constructor'ını çağır
-            this.games[i] = new Game(games[i]);
-        }
-
-
+        this.gamers = Objects.requireNonNull(gamers,"Gamer can not be null!");
+        this.games = Objects.requireNonNull(games,"Gamer can not be null!");
         this.matches = new Match[gamers.length][15];
         this.random = new Random();
         this.matchIdCounter = 1;
 
-        // Maçları içerideki güvenli dizilerle oluştur
         generateAllMatches();
     }
 
-    /**
-     * 'this.gamers' ve 'this.games' (içerideki güvenli kopyalar) ile maç yaratır.
-     */
-
+    // Generates single match for a gamer
     private Match generateMatch(Gamer gamer) {
+
+        Objects.requireNonNull(gamer,"Gamer can not be null!");
+
+        // Selects 3 random games
         Game[] selectedGames = new Game[3];
         int[] rounds = new int[3];
 
         for (int i = 0; i < 3; i++) {
-            // 'this.games' içinden seç
-            selectedGames[i] = this.games[random.nextInt(this.games.length)];
+            // Selects 1 random game
+            selectedGames[i] = games[random.nextInt(games.length)];
+
+            // Selects round number between 1 and 10 randomly
             rounds[i] = random.nextInt(10) + 1;
         }
 
@@ -61,74 +40,50 @@ public class MatchManagement {
         return match;
     }
 
-    /**
-     * 'this.gamers' (içerideki güvenli kopya) ile tüm maçları yaratır.
-     */
+    // Generates all matches
     private void generateAllMatches() {
-        for (int gamerIndex = 0; gamerIndex < this.gamers.length; gamerIndex++) {
+        for (int gamerIndex = 0; gamerIndex < gamers.length; gamerIndex++) {
             for (int matchIndex = 0; matchIndex < 15; matchIndex++) {
-                matches[gamerIndex][matchIndex] = generateMatch(this.gamers[gamerIndex]);
+                matches[gamerIndex][matchIndex] = generateMatch(gamers[gamerIndex]);
             }
         }
     }
 
-    //Getters
+    //------------Getters------------\\
 
+    // Returns all matches
     public Match[][] getAllMatches() {
-        Match[][] allMatchesCopy = new Match[this.gamers.length][15];
-        for (int gamerIndex = 0; gamerIndex < this.gamers.length; gamerIndex++) {
+        Match[][] allMatchesCopy = new Match[gamers.length][15];
+        for (int gamerIndex = 0; gamerIndex < gamers.length; gamerIndex++) {
             for (int matchIndex = 0; matchIndex < 15; matchIndex++) {
-                // Match'in Copy Constructor'ını çağır
-                allMatchesCopy[gamerIndex][matchIndex] = new Match(this.matches[gamerIndex][matchIndex]);
+                allMatchesCopy[gamerIndex][matchIndex] = matches[gamerIndex][matchIndex];
             }
         }
         return allMatchesCopy;
     }
 
-    /**
-     * Belirli bir oyuncunun maçlarının 'deep copy' kopyasını 1D dizi olarak döndürür.
-     */
+    // Returns all games of given gamer
     public Match[] getGamerMatches(int gamerIndex) {
-        // Hata kontrolü
-        if (gamerIndex < 0 || gamerIndex >= this.gamers.length) {
-            throw new IllegalArgumentException("Invalid gamer index: " + gamerIndex);
-        }
-
-        Match[] gamerMatchesCopy = new Match[15];
-        for (int matchIndex = 0; matchIndex < 15; matchIndex++) {
-            // Klon ver
-            gamerMatchesCopy[matchIndex] = new Match(this.matches[gamerIndex][matchIndex]);
-        }
-        return gamerMatchesCopy;
+        return getAllMatches()[gamerIndex];
     }
 
-    /**
-     * Belirli bir maçın 'deep copy' kopyasını (klonunu) döndürür.
-     */
+    // Returns specific match according to gamer and match ID
     public Match getMatch(int gamerIndex, int matchIndex) {
-        // Hata kontrolü
-        if (gamerIndex < 0 || gamerIndex >= this.gamers.length || matchIndex < 0 || matchIndex >= 15) {
-            throw new IllegalArgumentException("Invalid match indices.");
-        }
-
-        // Doğrudan 'this.matches'e eriş ve SADECE o 1 nesneyi klonla
-        return new Match(this.matches[gamerIndex][matchIndex]);
+        return getAllMatches()[gamerIndex][matchIndex];
     }
 
-    /**
-     * Tüm maçların 'deep copy' kopyasını 1D (düzleştirilmiş) dizi olarak döndürür.
-     */
+    // Returns all matches as a 1D array (for Query class)
     public Match[] getAllMatchesFlat() {
-        int totalMatches = this.gamers.length * 15;
+        int totalMatches = gamers.length * 15;
         Match[] flatMatches = new Match[totalMatches];
         int index = 0;
 
-        for (int i = 0; i < this.gamers.length; i++) {
+        for (int i = 0; i < gamers.length; i++) {
             for (int j = 0; j < 15; j++) {
-                // Klonla
-                flatMatches[index++] = new Match(this.matches[i][j]);
+                flatMatches[index++] = getAllMatches()[i][j];
             }
         }
+
         return flatMatches;
     }
 }

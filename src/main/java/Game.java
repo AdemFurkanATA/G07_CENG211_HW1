@@ -1,15 +1,8 @@
-/**
- * Bir oyunu temsil eder. B
- */
 public class Game {
 
     private int id;
     private String gameName;
     private int basePointPerRound;
-
-    /**
-     * 1. Normal Constructor
-     */
 
     public Game(int id, String gameName, int basePointPerRound) {
         this.id = id;
@@ -17,19 +10,14 @@ public class Game {
         this.basePointPerRound = basePointPerRound;
     }
 
-    /**
-     * 2. Copy Constructor
-     * Başka bir 'Game' nesnesini alıp, onun bilgilerini
-     * YENİ yaratılan bu nesneye kopyalar (klonlar).
-     */
-
+    // Copy Constructor
     public Game(Game other) {
         this.id = other.id;
         this.gameName = other.gameName;
         this.basePointPerRound = other.basePointPerRound;
     }
 
-    // --- SETTERLAR ---
+    // Setters
 
     public void setGameName(String gameName) {
         this.gameName = gameName;
@@ -43,7 +31,7 @@ public class Game {
         this.id = id;
     }
 
-    // --- Getter'lar ---
+    // Getters
 
     public int getId() {
         return id;
