@@ -40,7 +40,6 @@ public class FileIO {
         // Create array with maximum possible size
         Game[] games = new Game[lineCount];
         int validCount = 0;
-        int errorCount = 0;
         int lineNumber = 0;
 
         // Second pass: Parse data
@@ -66,7 +65,6 @@ public class FileIO {
                 // Security: Check line length
                 if (line.length() > MAX_LINE_LENGTH) {
                     System.err.println("Line " + lineNumber + ": Line too long, skipping");
-                    errorCount++;
                     continue;
                 }
 
@@ -78,10 +76,8 @@ public class FileIO {
                     }
                 } catch (ParseException e) {
                     System.err.println("Line " + lineNumber + ": " + e.getMessage());
-                    errorCount++;
                 } catch (Exception e) {
                     System.err.println("Line " + lineNumber + ": Unexpected error - " + e.getMessage());
-                    errorCount++;
                 }
             }
 
@@ -173,7 +169,6 @@ public class FileIO {
         // Create array with maximum possible size
         Gamer[] gamers = new Gamer[lineCount];
         int validCount = 0;
-        int errorCount = 0;
         int lineNumber = 0;
 
         // Second pass: Parse data
@@ -199,7 +194,6 @@ public class FileIO {
                 // Security: Check line length
                 if (line.length() > MAX_LINE_LENGTH) {
                     System.err.println("Line " + lineNumber + ": Line too long, skipping");
-                    errorCount++;
                     continue;
                 }
 
@@ -211,13 +205,10 @@ public class FileIO {
                     }
                 } catch (ParseException e) {
                     System.err.println("Line " + lineNumber + ": " + e.getMessage());
-                    errorCount++;
                 } catch (IllegalArgumentException e) {
                     System.err.println("Line " + lineNumber + ": " + e.getMessage());
-                    errorCount++;
                 } catch (Exception e) {
                     System.err.println("Line " + lineNumber + ": Unexpected error - " + e.getMessage());
-                    errorCount++;
                 }
             }
 
@@ -309,7 +300,7 @@ public class FileIO {
         return new Gamer(id, nickname, name, phone, experienceYears);
     }
 
-    // ============= HELPER METHODS =============
+    // ============= HELPER METHODS ============= \\
 
     /**
      * Counts non-empty data lines in the file (excluding header)
