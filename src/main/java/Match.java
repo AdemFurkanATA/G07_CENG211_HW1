@@ -95,7 +95,23 @@ public class Match {
     }
 
     @Override
-    public boolean equals(Object other) {return false;}
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+
+        Match match = (Match) other;
+        return id == match.id &&
+                experienceYears == match.experienceYears &&
+                Arrays.equals(rounds, match.rounds) &&
+                Arrays.equals(games, match.games);
+    }
+
     @Override
-    public int hashCode() {return 0;}
+    public int hashCode() {
+        int result = Integer.hashCode(id);
+        result = 31 * result + Integer.hashCode(experienceYears);
+        result = 31 * result + Arrays.hashCode(rounds);
+        result = 31 * result + Arrays.hashCode(games);
+        return result;
+    }
 }
