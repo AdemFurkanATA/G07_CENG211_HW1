@@ -3,287 +3,227 @@ import java.util.Objects;
 public class Query {
     private final MatchManagement matchManagement;
     private final PointsBoard pointsBoard;
-
     // Constructor
     public Query(MatchManagement matchManagement, PointsBoard pointsBoard) {
-        // Null check
-        this.matchManagement = Objects.requireNonNull(matchManagement,"MatchManagement cannot be null!");
-        this.pointsBoard = Objects.requireNonNull(pointsBoard,"PointsBoard cannot be null!");
+        this.matchManagement = Objects.requireNonNull(
+                matchManagement, "MatchManagement cannot be null");
+        this.pointsBoard = Objects.requireNonNull(
+                pointsBoard, "PointsBoard cannot be null");
     }
 
     // Query 1: Highest Scoring Match
-    public void printHighestScoringMatch() {
+    public Match getHighestScoringMatch() {
         Match[] allMatches = matchManagement.getAllMatchesFlat();
+        if (allMatches.length == 0) return null;
 
-        Objects.requireNonNull(allMatches, "Match array cannot be null!");
-
-        if (allMatches.length == 0) {
-            throw new IllegalStateException("No matches found!");
-        }
-
-        Objects.requireNonNull(allMatches[0], "First match cannot be null!");
-
-        Match highestMatch = allMatches[0];
-
+        Match highest = allMatches[0];
         for (int i = 1; i < allMatches.length; i++) {
-            Objects.requireNonNull(allMatches[i],
-                    "A null element was found in the match array! Index: " + i);
-
-            if (allMatches[i].getMatchPoints() > highestMatch.getMatchPoints()) {
-                highestMatch = allMatches[i];
+            if (allMatches[i].getMatchPoints() > highest.getMatchPoints()) {
+                highest = allMatches[i];
             }
         }
-
-        Objects.requireNonNull(highestMatch.getGames(),"Games cannot be null!");
-        Objects.requireNonNull(highestMatch.getRounds(),"Rounds cannot be null!");
-
-        System.out.println("1. Highest-Scoring Match");
-        System.out.println("Highest-Scoring Match:");
-        System.out.println("Match ID: " + highestMatch.getId());
-        System.out.print("Games: [");
-        Game[] games = highestMatch.getGames();
-        for (int i = 0; i < games.length; i++) {
-            System.out.print(games[i].getGameName());
-            if (i < games.length - 1) System.out.print(", ");
-        }
-        System.out.println("]");
-
-        System.out.print("Rounds: [");
-        int[] rounds = highestMatch.getRounds();
-        for (int i = 0; i < rounds.length; i++) {
-            System.out.print(rounds[i]);
-            if (i < rounds.length - 1) System.out.print(", ");
-        }
-        System.out.println("]");
-
-        System.out.println("Raw Points: " + highestMatch.getRawPoints());
-        System.out.println("Skill Points: " + highestMatch.getSkillPoints());
-        System.out.println("Bonus Points: " + highestMatch.getBonusPoints());
-        System.out.println("Match Points: " + highestMatch.getMatchPoints());
-        System.out.println();
+        return highest;
     }
 
     // Query 2: Lowest Scoring Match And Contributor
-    public void printLowestScoringMatchAndContributor() {
+    public Match getLowestScoringMatch() {
         Match[] allMatches = matchManagement.getAllMatchesFlat();
+        if (allMatches.length == 0) return null;
 
-        Objects.requireNonNull(allMatches, "Match array cannot be null!");
-
-        if (allMatches.length == 0) {
-            throw new IllegalStateException("No  matches found!");
-        }
-
-        Objects.requireNonNull(allMatches[0], "First match cannot be null!");
-
-        Match lowestMatch = allMatches[0];
-
+        Match lowest = allMatches[0];
         for (int i = 1; i < allMatches.length; i++) {
-            Objects.requireNonNull(allMatches[i],
-                    "A null element was found in the Match array! Index: " + i);
-
-            if (allMatches[i].getMatchPoints() < lowestMatch.getMatchPoints()) {
-                lowestMatch = allMatches[i];
+            if (allMatches[i].getMatchPoints() < lowest.getMatchPoints()) {
+                lowest = allMatches[i];
             }
         }
+        return lowest;
+    }
 
-        Game[] games = lowestMatch.getGames();
-        Objects.requireNonNull(games, "Games cannot be null!");
+    // Query 3: Lowest Bonus Match
+    public int getMostContributingGameIndex(Match match) {
+        Objects.requireNonNull(match, "Match cannot be null");
 
-        if (games.length < 3) {
-            throw new IllegalStateException(
-                    "Match must contain at least 3 games! Founded: " + games.length);
-        }
-
-        for (int i = 0; i < 3; i++) {
-            Objects.requireNonNull(games[i],
-                    "A null element was found in the Game array! Index: " + i);
-        }
-
-        int maxContribution = lowestMatch.getGameContribution(0);
+        int maxContribution = match.getGameContribution(0);
         int maxIndex = 0;
 
         for (int i = 1; i < 3; i++) {
-            int contribution = lowestMatch.getGameContribution(i);
+            int contribution = match.getGameContribution(i);
             if (contribution > maxContribution) {
                 maxContribution = contribution;
                 maxIndex = i;
             }
         }
+        return maxIndex;
+    }
 
-        int[] rounds = lowestMatch.getRounds();
-        Objects.requireNonNull(rounds, "Rounds cannot be null!");
+    // Query 4: Highest Scoring Gamer
+    public Match getLowestBonusMatch() {
+        Match[] allMatches = matchManagement.getAllMatchesFlat();
+        if (allMatches.length == 0) return null;
 
-        if (rounds.length < 3) {
-            throw new IllegalStateException(
-                    "Rounds must contain at least 3 games! Bulunan: " + rounds.length);
+        Match lowestBonus = allMatches[0];
+        for (int i = 1; i < allMatches.length; i++) {
+            if (allMatches[i].getBonusPoints() < lowestBonus.getBonusPoints()) {
+                lowestBonus = allMatches[i];
+            }
+        }
+        return lowestBonus;
+    }
+
+    // Query 5: Total Tournament Points
+    public int getTotalTournamentPoints() {
+        Match[] allMatches = matchManagement.getAllMatchesFlat();
+        int total = 0;
+
+        for (Match match : allMatches) {
+            total += match.getMatchPoints();
+        }
+        return total;
+    }
+
+    // Print Methods
+
+    public void printHighestScoringMatch() {
+        Match match = getHighestScoringMatch();
+        if (match == null) {
+            System.out.println("No matches found!");
+            return;
         }
 
-        if (maxIndex < 0 || maxIndex >= games.length) {
-            throw new IllegalStateException(
-                    "Invalid maxIndex: " + maxIndex);
-        }
+        System.out.println("1. Highest-Scoring Match");
+        System.out.println("Highest-Scoring Match:");
+        printMatchDetails(match);
+        System.out.println();
+    }
 
-        if (maxIndex >= rounds.length) {
-            throw new IllegalStateException(
-                    "maxIndex is outside the rounds array: " + maxIndex);
+    public void printLowestScoringMatchAndContributor() {
+        Match match = getLowestScoringMatch();
+        if (match == null) {
+            System.out.println("No matches found!");
+            return;
         }
 
         System.out.println("2. Lowest-Scoring Match & Most Contributing Game");
         System.out.println("Lowest-Scoring Match:");
-        System.out.println("Match ID: " + lowestMatch.getId());
-        System.out.print("Games: [");
-        for (int i = 0; i < games.length; i++) {
-            System.out.print(games[i].getGameName());
-            if (i < games.length - 1) System.out.print(", ");
-        }
-        System.out.println("]");
+        printMatchDetails(match);
 
-        System.out.print("Rounds: [");
-        for (int i = 0; i < rounds.length; i++) {
-            System.out.print(rounds[i]);
-            if (i < rounds.length - 1) System.out.print(", ");
-        }
-        System.out.println("]");
-
-        System.out.println("Raw Points: " + lowestMatch.getRawPoints());
-        System.out.println("Skill Points: " + lowestMatch.getSkillPoints());
-        System.out.println("Bonus Points: " + lowestMatch.getBonusPoints());
-        System.out.println("Match Points: " + lowestMatch.getMatchPoints());
+        int gameIndex = getMostContributingGameIndex(match);
+        Game[] games = match.getGames();
+        int[] rounds = match.getRounds();
+        int contribution = match.getGameContribution(gameIndex);
 
         System.out.println("\nMost Contributing Game in this Match:");
-        System.out.println("Game: " + games[maxIndex].getGameName());
-        System.out.println("Contribution: " + rounds[maxIndex] + " rounds × " +
-                games[maxIndex].getBasePointPerRound() + " points = " + maxContribution);
+        System.out.println("Game: " + games[gameIndex].getGameName());
+        System.out.printf("Contribution: %d rounds × %d points = %d%n",
+                rounds[gameIndex],
+                games[gameIndex].getBasePointPerRound(),
+                contribution);
         System.out.println();
     }
 
-    // Query 3: Lowest Bonus Match
     public void printLowestBonusMatch() {
-        Match[] allMatches = matchManagement.getAllMatchesFlat();
-
-        Objects.requireNonNull(allMatches, "Match array cannot be null!");
-
-        if (allMatches.length == 0) {
-            throw new IllegalStateException("No matches found!");
-        }
-
-        Objects.requireNonNull(allMatches[0], "First match cannot be null!");
-
-        Match lowestBonusMatch = allMatches[0];
-
-        for (int i = 1; i < allMatches.length; i++) {
-            Objects.requireNonNull(allMatches[i],
-                    "A null element was found in the match array! Index: " + i);
-
-            if (allMatches[i].getBonusPoints() < lowestBonusMatch.getBonusPoints()) {
-                lowestBonusMatch = allMatches[i];
-            }
-        }
-
-        Game[] games = lowestBonusMatch.getGames();
-        Objects.requireNonNull(games, "Games cannot be null!");
-
-        for (int i = 0; i < games.length; i++) {
-            Objects.requireNonNull(games[i],
-                    "A null element was found in the games array! Index: " + i);
+        Match match = getLowestBonusMatch();
+        if (match == null) {
+            System.out.println("No matches found!");
+            return;
         }
 
         System.out.println("3. Match with the Lowest Bonus Points");
         System.out.println("Match with Lowest Bonus Points:");
-        System.out.println("Match ID: " + lowestBonusMatch.getId());
+        System.out.println("Match ID: " + match.getId());
+
+        Game[] games = match.getGames();
         System.out.print("Games: [");
         for (int i = 0; i < games.length; i++) {
             System.out.print(games[i].getGameName());
             if (i < games.length - 1) System.out.print(", ");
         }
         System.out.println("]");
-        System.out.println("Skill Points: " + lowestBonusMatch.getSkillPoints());
-        System.out.println("Bonus Points: " + lowestBonusMatch.getBonusPoints());
-        System.out.println("Match Points: " + lowestBonusMatch.getMatchPoints());
+
+        System.out.println("Skill Points: " + match.getSkillPoints());
+        System.out.println("Bonus Points: " + match.getBonusPoints());
+        System.out.println("Match Points: " + match.getMatchPoints());
         System.out.println();
     }
 
-    // Query 4: Highest Scoring Gamer
     public void printHighestScoringGamer() {
         int gamerIndex = pointsBoard.getHighestScoringGamerIndex();
-
         Gamer[] gamers = pointsBoard.getGamers();
-        Objects.requireNonNull(gamers, "Gamers array cannot be null!");
-
-        if (gamers.length == 0) {
-            throw new IllegalStateException("No gamers found!");
-        }
 
         if (gamerIndex < 0 || gamerIndex >= gamers.length) {
-            throw new IllegalStateException(
-                    "Invalid gamer index: " + gamerIndex + " (Array length: " + gamers.length + ")");
+            System.out.println("No gamers found!");
+            return;
         }
 
         Gamer gamer = gamers[gamerIndex];
-        Objects.requireNonNull(gamer, "Gamer cannot be null at index: " + gamerIndex);
 
         System.out.println("4. Highest-Scoring Gamer");
         System.out.println("Highest-Scoring Gamer:");
         System.out.println("Nickname: " + gamer.getNickname());
         System.out.println("Name: " + gamer.getName());
         System.out.println("Total Points: " + pointsBoard.getTotalPoints(gamerIndex));
-        System.out.printf("Average Per Match: %.2f\n", pointsBoard.getAveragePoints(gamerIndex));
+        System.out.printf("Average Per Match: %.2f%n",
+                pointsBoard.getAveragePoints(gamerIndex));
         System.out.println("Medal: " + pointsBoard.getMedal(gamerIndex));
         System.out.println();
     }
 
-    // Query 5: Total Tournament Points
     public void printTotalTournamentPoints() {
-        Match[] allMatches = matchManagement.getAllMatchesFlat();
-
-        Objects.requireNonNull(allMatches, "Match array cannot be null!");
-
-        if (allMatches.length == 0) {
-            throw new IllegalStateException("No matches found!");
-        }
-
-        int total = 0;
-
-        for (int i = 0; i < allMatches.length; i++) {
-            Objects.requireNonNull(allMatches[i],
-                    "A null element was found in the match array! Index: " + i);
-
-            total += allMatches[i].getMatchPoints();
-        }
+        int total = getTotalTournamentPoints();
 
         System.out.println("5. Total Tournament Points");
-        System.out.printf("Total Tournament Points across 1500 matches: %,d\n", total);
+        System.out.printf("Total Tournament Points across %d matches: %,d%n",
+                matchManagement.getAllMatchesFlat().length, total);
         System.out.println();
     }
 
-    // Query 6: Medal Distribution
     public void printMedalDistribution() {
         int[] distribution = pointsBoard.getMedalDistribution();
-
-        Objects.requireNonNull(distribution, "Medal distribution cannot be null!");
-
-        if (distribution.length < 4) {
-            throw new IllegalStateException("Medal distribution array must have 4 elements!");
-        }
-
         Gamer[] gamers = pointsBoard.getGamers();
-        Objects.requireNonNull(gamers, "Gamers array cannot be null!");
-
         int totalGamers = gamers.length;
 
         if (totalGamers == 0) {
-            throw new IllegalStateException("No gamers found!");
+            System.out.println("No gamers found!");
+            return;
         }
 
         System.out.println("6. Medal Distribution");
         System.out.println("Medal Distribution:");
-        System.out.printf("GOLD: %d gamers (%.1f%%)\n",
+        System.out.printf("GOLD: %d gamers (%.1f%%)%n",
                 distribution[0], (distribution[0] * 100.0 / totalGamers));
-        System.out.printf("SILVER: %d gamers (%.1f%%)\n",
+        System.out.printf("SILVER: %d gamers (%.1f%%)%n",
                 distribution[1], (distribution[1] * 100.0 / totalGamers));
-        System.out.printf("BRONZE: %d gamers (%.1f%%)\n",
+        System.out.printf("BRONZE: %d gamers (%.1f%%)%n",
                 distribution[2], (distribution[2] * 100.0 / totalGamers));
-        System.out.printf("NONE: %d gamers (%.1f%%)\n",
+        System.out.printf("NONE: %d gamers (%.1f%%)%n",
                 distribution[3], (distribution[3] * 100.0 / totalGamers));
+    }
+
+    // Helper Method to Print Match Details
+
+    private void printMatchDetails(Match match) {
+        Game[] games = match.getGames();
+        int[] rounds = match.getRounds();
+
+        System.out.println("Match ID: " + match.getId());
+
+        System.out.print("Games: [");
+        for (int i = 0; i < games.length; i++) {
+            System.out.print(games[i].getGameName());
+            if (i < games.length - 1) System.out.print(", ");
+        }
+        System.out.println("]");
+
+        System.out.print("Rounds: [");
+        for (int i = 0; i < rounds.length; i++) {
+            System.out.print(rounds[i]);
+            if (i < rounds.length - 1) System.out.print(", ");
+        }
+        System.out.println("]");
+
+        System.out.println("Raw Points: " + match.getRawPoints());
+        System.out.println("Skill Points: " + match.getSkillPoints());
+        System.out.println("Bonus Points: " + match.getBonusPoints());
+        System.out.println("Match Points: " + match.getMatchPoints());
     }
 }
