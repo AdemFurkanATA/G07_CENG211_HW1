@@ -4,6 +4,9 @@ import java.io.IOException;
 
 public class FileIO {
 
+    // Creating class constructor for safety
+    private FileIO(){}
+
     // Reading Games files
     public static Game[] readGames(String filePath) {
         Game[] games = null;
@@ -18,7 +21,13 @@ public class FileIO {
             counter.close();
 
             // Creating 1D array of games
-            lineCount--;
+            if (lineCount>0){
+                lineCount--;
+            }
+            else {
+                System.out.println("Line count can not be negative");
+                return null;
+            }
             games = new Game[lineCount];
 
             // Reading CSV file
@@ -39,6 +48,9 @@ public class FileIO {
 
         } catch (IOException e) {
             System.out.println("Error reading games file: " + e.getMessage());
+            return null;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         return games;
@@ -58,7 +70,13 @@ public class FileIO {
             counter.close();
 
             // Creating 1D array of gamers
-            lineCount--;
+            if (lineCount>0){
+                lineCount--;
+            }
+            else {
+                System.out.println("Line count can not be negative");
+                return null;
+            }
             gamers = new Gamer[lineCount];
 
             // Reading CSV file
@@ -81,6 +99,9 @@ public class FileIO {
 
         } catch (IOException e) {
             System.out.println("Error reading gamers file: " + e.getMessage());
+            return null;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         return gamers;
