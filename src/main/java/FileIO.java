@@ -74,8 +74,6 @@ public class FileIO {
                         games[validCount] = game;
                         validCount++;
                     }
-                } catch (ParseException e) {
-                    System.err.println("Line " + lineNumber + ": " + e.getMessage());
                 } catch (Exception e) {
                     System.err.println("Line " + lineNumber + ": Unexpected error - " + e.getMessage());
                 }
@@ -96,53 +94,51 @@ public class FileIO {
         return shrinkArray(games, validCount);
     }
 
-    private static Game parseGameLine(String line, int lineNumber) throws ParseException {
-        String[] parts = splitCSV(line, 3);
+    private static Game parseGameLine(String line, int lineNumber) {
+        // Replaced manual split with standard String.split()
+        String[] parts = line.split(",", -1);
 
         if (parts.length != 3) {
-            throw new ParseException("Invalid format - expected 3 fields, found " + parts.length);
+            System.err.println("Line " + lineNumber + ": Invalid format - expected 3 fields, found " + parts.length);
+            return null;
         }
 
-        // Parse ID
-        int id;
         try {
-            id = Integer.parseInt(parts[0].trim());
+            // Parse ID
+            int id = Integer.parseInt(parts[0].trim());
+            if (id <= 0) {
+                System.err.println("Line " + lineNumber + ": ID must be positive, found: " + id);
+                return null;
+            }
+
+            // Parse game name
+            String gameName = sanitizeField(parts[1]);
+            if (gameName.isEmpty()) {
+                System.err.println("Line " + lineNumber + ": Game name cannot be empty");
+                return null;
+            }
+            if (gameName.length() > MAX_GAME_NAME_LENGTH) {
+                System.err.println("Line " + lineNumber + ": Game name too long (max " + MAX_GAME_NAME_LENGTH + ")");
+                return null;
+            }
+
+            // Parse base points
+            int basePointPerRound = Integer.parseInt(parts[2].trim());
+            if (basePointPerRound < 0) {
+                System.err.println("Line " + lineNumber + ": Base points cannot be negative: " + basePointPerRound);
+                return null;
+            }
+            if (basePointPerRound > MAX_BASE_POINTS) {
+                System.err.println("Line " + lineNumber + ": Base points too high (max " + MAX_BASE_POINTS + "): " + basePointPerRound);
+                return null;
+            }
+
+            return new Game(id, gameName, basePointPerRound);
+
         } catch (NumberFormatException e) {
-            throw new ParseException("Invalid ID format: " + parts[0]);
+            System.err.println("Line " + lineNumber + ": Invalid number format: " + e.getMessage());
+            return null;
         }
-
-        if (id <= 0) {
-            throw new ParseException("ID must be positive, found: " + id);
-        }
-
-        // Parse game name
-        String gameName = sanitizeField(parts[1]);
-
-        if (gameName.isEmpty()) {
-            throw new ParseException("Game name cannot be empty");
-        }
-
-        if (gameName.length() > MAX_GAME_NAME_LENGTH) {
-            throw new ParseException("Game name too long (max " + MAX_GAME_NAME_LENGTH + ")");
-        }
-
-        // Parse base points
-        int basePointPerRound;
-        try {
-            basePointPerRound = Integer.parseInt(parts[2].trim());
-        } catch (NumberFormatException e) {
-            throw new ParseException("Invalid base points format: " + parts[2]);
-        }
-
-        if (basePointPerRound < 0) {
-            throw new ParseException("Base points cannot be negative: " + basePointPerRound);
-        }
-
-        if (basePointPerRound > MAX_BASE_POINTS) {
-            throw new ParseException("Base points too high (max " + MAX_BASE_POINTS + "): " + basePointPerRound);
-        }
-
-        return new Game(id, gameName, basePointPerRound);
     }
 
     // ============= GAMER READING =============
@@ -203,8 +199,6 @@ public class FileIO {
                         gamers[validCount] = gamer;
                         validCount++;
                     }
-                } catch (ParseException e) {
-                    System.err.println("Line " + lineNumber + ": " + e.getMessage());
                 } catch (IllegalArgumentException e) {
                     System.err.println("Line " + lineNumber + ": " + e.getMessage());
                 } catch (Exception e) {
@@ -227,77 +221,75 @@ public class FileIO {
         return shrinkArray(gamers, validCount);
     }
 
-    private static Gamer parseGamerLine(String line, int lineNumber) throws ParseException {
-        String[] parts = splitCSV(line, 5);
+    private static Gamer parseGamerLine(String line, int lineNumber) {
+        // Replaced manual split with standard String.split()
+        String[] parts = line.split(",", -1);
 
         if (parts.length != 5) {
-            throw new ParseException("Invalid format - expected 5 fields, found " + parts.length);
+            System.err.println("Line " + lineNumber + ": Invalid format - expected 5 fields, found " + parts.length);
+            return null;
         }
 
-        // Parse ID
-        int id;
         try {
-            id = Integer.parseInt(parts[0].trim());
-        } catch (NumberFormatException e) {
-            throw new ParseException("Invalid ID format: " + parts[0]);
-        }
-
-        if (id <= 0) {
-            throw new ParseException("ID must be positive, found: " + id);
-        }
-
-        // Parse nickname
-        String nickname = sanitizeField(parts[1]);
-
-        if (nickname.isEmpty()) {
-            throw new ParseException("Nickname cannot be empty");
-        }
-
-        if (nickname.length() > MAX_NICKNAME_LENGTH) {
-            throw new ParseException("Nickname too long (max " + MAX_NICKNAME_LENGTH + ")");
-        }
-
-        // Parse name
-        String name = sanitizeField(parts[2]);
-
-        if (name.isEmpty()) {
-            throw new ParseException("Name cannot be empty");
-        }
-
-        if (name.length() > MAX_NAME_LENGTH) {
-            throw new ParseException("Name too long (max " + MAX_NAME_LENGTH + ")");
-        }
-
-        // Parse phone
-        String phone = sanitizeField(parts[3]);
-
-        if (!phone.isEmpty()) {
-            if (phone.length() < MIN_PHONE_LENGTH || phone.length() > MAX_PHONE_LENGTH) {
-                throw new ParseException("Invalid phone length (must be " + MIN_PHONE_LENGTH + "-" + MAX_PHONE_LENGTH + ")");
+            // Parse ID
+            int id = Integer.parseInt(parts[0].trim());
+            if (id <= 0) {
+                System.err.println("Line " + lineNumber + ": ID must be positive, found: " + id);
+                return null;
             }
 
-            if (!isValidPhone(phone)) {
-                throw new ParseException("Invalid phone format");
+            // Parse nickname
+            String nickname = sanitizeField(parts[1]);
+            if (nickname.isEmpty()) {
+                System.err.println("Line " + lineNumber + ": Nickname cannot be empty");
+                return null;
             }
-        }
+            if (nickname.length() > MAX_NICKNAME_LENGTH) {
+                System.err.println("Line " + lineNumber + ": Nickname too long (max " + MAX_NICKNAME_LENGTH + ")");
+                return null;
+            }
 
-        // Parse experience years
-        int experienceYears;
-        try {
-            experienceYears = Integer.parseInt(parts[4].trim());
+            // Parse name
+            String name = sanitizeField(parts[2]);
+            if (name.isEmpty()) {
+                System.err.println("Line " + lineNumber + ": Name cannot be empty");
+                return null;
+            }
+            if (name.length() > MAX_NAME_LENGTH) {
+                System.err.println("Line " + lineNumber + ": Name too long (max " + MAX_NAME_LENGTH + ")");
+                return null;
+            }
+
+            // Parse phone
+            String phone = sanitizeField(parts[3]);
+            if (!phone.isEmpty()) {
+                if (phone.length() < MIN_PHONE_LENGTH || phone.length() > MAX_PHONE_LENGTH) {
+                    System.err.println("Line " + lineNumber + ": Invalid phone length (must be " + MIN_PHONE_LENGTH + "-" + MAX_PHONE_LENGTH + ")");
+                    return null;
+                }
+                if (!isValidPhone(phone)) {
+                    System.err.println("Line " + lineNumber + ": Invalid phone format");
+                    return null;
+                }
+            }
+
+            // Parse experience years
+            int experienceYears = Integer.parseInt(parts[4].trim());
+            if (experienceYears < 0) {
+                System.err.println("Line " + lineNumber + ": Experience years cannot be negative: " + experienceYears);
+                return null;
+            }
+            if (experienceYears > MAX_EXPERIENCE_YEARS) {
+                System.err.println("Line " + lineNumber + ": Experience years too high (max " + MAX_EXPERIENCE_YEARS + "): " + experienceYears);
+                return null;
+            }
+
+            return new Gamer(id, nickname, name, phone, experienceYears);
+
         } catch (NumberFormatException e) {
-            throw new ParseException("Invalid experience years format: " + parts[4]);
+            System.err.println("Line " + lineNumber + ": Invalid number format: " + e.getMessage());
+            return null;
         }
-
-        if (experienceYears < 0) {
-            throw new ParseException("Experience years cannot be negative: " + experienceYears);
-        }
-
-        if (experienceYears > MAX_EXPERIENCE_YEARS) {
-            throw new ParseException("Experience years too high (max " + MAX_EXPERIENCE_YEARS + "): " + experienceYears);
-        }
-
-        return new Gamer(id, nickname, name, phone, experienceYears);
     }
 
     // ============= HELPER METHODS ============= \\
@@ -328,43 +320,6 @@ public class FileIO {
         }
 
         return count;
-    }
-
-    /**
-     * Splits a CSV line into fields
-     * Manual implementation to avoid String.split() issues with trailing empty strings
-     */
-    private static String[] splitCSV(String line, int expectedFields) {
-        String[] result = new String[expectedFields];
-        int fieldIndex = 0;
-        int startIndex = 0;
-
-        for (int i = 0; i < line.length(); i++) {
-            if (line.charAt(i) == ',') {
-                if (fieldIndex < expectedFields) {
-                    result[fieldIndex] = line.substring(startIndex, i);
-                    fieldIndex++;
-                    startIndex = i + 1;
-                }
-            }
-        }
-
-        // Add last field
-        if (fieldIndex < expectedFields && startIndex <= line.length()) {
-            result[fieldIndex] = line.substring(startIndex);
-            fieldIndex++;
-        }
-
-        // If we didn't find enough fields, return what we have
-        if (fieldIndex != expectedFields) {
-            String[] truncated = new String[fieldIndex];
-            for (int i = 0; i < fieldIndex; i++) {
-                truncated[i] = result[i];
-            }
-            return truncated;
-        }
-
-        return result;
     }
 
     /**
@@ -461,16 +416,5 @@ public class FileIO {
             result[i] = array[i];
         }
         return result;
-    }
-
-    // ============= CUSTOM EXCEPTION =============
-
-    /**
-     * Simple exception class for parsing errors
-     */
-    private static class ParseException extends Exception {
-        public ParseException(String message) {
-            super(message);
-        }
     }
 }
