@@ -4,16 +4,6 @@ import java.io.IOException;
 
 public class FileIO {
 
-    // Constants
-    private static final int MAX_GAME_NAME_LENGTH = 100;
-    private static final int MAX_NICKNAME_LENGTH = 50;
-    private static final int MAX_NAME_LENGTH = 100;
-    private static final int MAX_PHONE_LENGTH = 20;
-    private static final int MIN_PHONE_LENGTH = 10;
-    private static final int MAX_BASE_POINTS = 1000;
-    private static final int MAX_EXPERIENCE_YEARS = 50;
-    private static final int MAX_LINE_LENGTH = 1000;
-
     private FileIO() {}
 
     // ============= GAME READING =============
@@ -59,12 +49,6 @@ public class FileIO {
 
                 // Skip empty lines
                 if (line.trim().isEmpty()) {
-                    continue;
-                }
-
-                // Security: Check line length
-                if (line.length() > MAX_LINE_LENGTH) {
-                    System.err.println("Line " + lineNumber + ": Line too long, skipping");
                     continue;
                 }
 
@@ -122,10 +106,6 @@ public class FileIO {
             throw new ParseException("Game name cannot be empty");
         }
 
-        if (gameName.length() > MAX_GAME_NAME_LENGTH) {
-            throw new ParseException("Game name too long (max " + MAX_GAME_NAME_LENGTH + ")");
-        }
-
         // Parse base points
         int basePointPerRound;
         try {
@@ -136,10 +116,6 @@ public class FileIO {
 
         if (basePointPerRound < 0) {
             throw new ParseException("Base points cannot be negative: " + basePointPerRound);
-        }
-
-        if (basePointPerRound > MAX_BASE_POINTS) {
-            throw new ParseException("Base points too high (max " + MAX_BASE_POINTS + "): " + basePointPerRound);
         }
 
         return new Game(id, gameName, basePointPerRound);
@@ -188,12 +164,6 @@ public class FileIO {
 
                 // Skip empty lines
                 if (line.trim().isEmpty()) {
-                    continue;
-                }
-
-                // Security: Check line length
-                if (line.length() > MAX_LINE_LENGTH) {
-                    System.err.println("Line " + lineNumber + ": Line too long, skipping");
                     continue;
                 }
 
@@ -253,10 +223,6 @@ public class FileIO {
             throw new ParseException("Nickname cannot be empty");
         }
 
-        if (nickname.length() > MAX_NICKNAME_LENGTH) {
-            throw new ParseException("Nickname too long (max " + MAX_NICKNAME_LENGTH + ")");
-        }
-
         // Parse name
         String name = sanitizeField(parts[2]);
 
@@ -264,18 +230,10 @@ public class FileIO {
             throw new ParseException("Name cannot be empty");
         }
 
-        if (name.length() > MAX_NAME_LENGTH) {
-            throw new ParseException("Name too long (max " + MAX_NAME_LENGTH + ")");
-        }
-
         // Parse phone
         String phone = sanitizeField(parts[3]);
 
         if (!phone.isEmpty()) {
-            if (phone.length() < MIN_PHONE_LENGTH || phone.length() > MAX_PHONE_LENGTH) {
-                throw new ParseException("Invalid phone length (must be " + MIN_PHONE_LENGTH + "-" + MAX_PHONE_LENGTH + ")");
-            }
-
             if (!isValidPhone(phone)) {
                 throw new ParseException("Invalid phone format");
             }
@@ -291,10 +249,6 @@ public class FileIO {
 
         if (experienceYears < 0) {
             throw new ParseException("Experience years cannot be negative: " + experienceYears);
-        }
-
-        if (experienceYears > MAX_EXPERIENCE_YEARS) {
-            throw new ParseException("Experience years too high (max " + MAX_EXPERIENCE_YEARS + "): " + experienceYears);
         }
 
         return new Gamer(id, nickname, name, phone, experienceYears);
